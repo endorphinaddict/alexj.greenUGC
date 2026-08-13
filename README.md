@@ -1,57 +1,42 @@
-# UGC creator site
+# alexj.green — UGC creator site
 
 Static HTML/CSS/JS. No build step, no dependencies, no framework. Open `index.html` in a
 browser to preview locally — that's it.
 
+Live at **https://endorphinaddict.github.io/alexj.greenUGC/** via GitHub Pages, deployed from
+`main` on every push.
+
 ```
-index.html    Home: hero, hook ticker, selected work, packages, about, contact
-work.html     Full portfolio grid with category filters
-rates.html    Packages, deliverables, usage terms, FAQ
+index.html    Single page: hero, hook ticker, work, services, about, contact
 styles.css    All styling and design tokens
-main.js       Mobile nav, work filter, footer year
+main.js       Mobile nav, footer year
+assets/       Reel cover images (reel-01.jpg … reel-05.jpg, ranked by views)
 ```
 
----
+## The work section
 
-## Replace before you deploy
+Five cards, ranked by real Instagram view count, each linking to its reel. Cover images live
+in `assets/` and are named by rank, so the order on the page matches the filenames.
 
-Find-and-replace across all three HTML files:
+Instagram's oEmbed/embed endpoint returns HTTP 503, so embedded players don't work — the
+cards link out instead. Don't reach for `embed.js`; it was tried and removed.
 
-| Placeholder | Replace with |
-|---|---|
-| `hello@yourdomain.com` | your real inbox |
-| `yourhandle` | your Instagram / TikTok / Facebook handle |
-| `YOUR_FORM_ID` | your Formspree form ID (see below) |
-| `ALEX` (wordmark) | your name as you want it on the site |
+### Updating the lineup
 
-Also worth a pass:
+When a new reel outperforms one on the page:
 
-- **Prices** (`$250` / `$850` / `$1,600`) are placeholders to make the layout real. Set your
-  own based on what auto-care brands in your lane actually pay.
-- **Turnaround** ("5–7 days") — change to whatever you can actually hit.
-- **Stats** in the hero (60K / 40K / 3 yrs) are yours, but update them as they grow.
-- **Hooks** in the ticker and on the frames — swap in your actual opening lines as you post.
+1. Grab its cover: `https://www.instagram.com/p/SHORTCODE/media/?size=l` (returns a 720×1280
+   JPEG). The shortcode is the `/reel/SHORTCODE/` part of the post URL.
+2. Save it into `assets/` at the rank it belongs, renumbering the others.
+3. Update the `href`, `alt`, and view count in that card in `index.html`.
 
-## Contact form
+Cards are designed to still look finished if an image is ever missing — the scrim and the
+rank badge carry it.
 
-The form posts to Formspree. Sign up free at formspree.io, create a form, and paste the ID
-into the `action` attribute in `index.html`. Until you do, the form won't send — the mailto
-link right beside it still works, so the page is never broken.
+## Contact
 
-If you'd rather skip it entirely, delete the `<form>` block. Email plus DMs is a perfectly
-normal way for brands to reach a creator.
-
-## Adding real thumbnails
-
-Each work card is designed to look finished without an image. To add one, drop the file in an
-`assets/` folder and uncomment the `<img>` line inside that card:
-
-```html
-<img class="frame__media" src="assets/thumb-01.jpg" alt="">
-```
-
-Export a frame from the video at 1080×1920. The scrim on top keeps the hook text readable, so
-you don't need to pick a dark frame.
+Email and social handles appear in the contact section and the footer. There's no form; the
+mailto link and DMs are the only routes in, which is normal for a creator site.
 
 ## Design tokens
 
@@ -62,8 +47,8 @@ Everything lives in `:root` at the top of `styles.css`.
 | `--sun` | `#F4C445` | hero, contact band, accents |
 | `--ink` | `#141210` | type, borders, ticker background |
 | `--shell` | `#FAF7F2` | page background |
-| `--asphalt` | `#241F1B` | work sections |
-| `--signal` | `#1F5CFF` | links, hover states, prices |
+| `--asphalt` | `#241F1B` | work section |
+| `--signal` | `#1F5CFF` | links, hover states |
 | `--mute` | `#8A8175` | secondary text |
 
 Change `--sun` and `--signal` to reskin the whole site.
@@ -73,5 +58,5 @@ Change `--sun` and `--signal` to reskin the whole site.
 - Responsive down to small phones; the work grid reflows to two columns.
 - The hook ticker pauses on hover and stops entirely for anyone with reduced-motion turned on.
 - Keyboard focus is visible throughout.
-- Fonts load from Google Fonts. If you'd rather have zero external requests, delete the two
-  `<link>` tags for fonts — the system-font fallbacks in `styles.css` will take over.
+- Fonts load from Google Fonts. To go fully self-contained, delete the two `<link>` tags for
+  fonts — the system-font fallbacks in `styles.css` take over.
