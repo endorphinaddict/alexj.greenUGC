@@ -174,8 +174,9 @@ p:last-child { margin-bottom: 0; }
   font-style: normal;
   color: var(--ink);
 }
-/* --mute is tuned for black; on the blue band it goes muddy. */
-.hero .eyebrow { color: rgba(237, 240, 246, 0.78); }
+/* --mute is tuned for black; on any blue band it goes muddy. */
+.hero .eyebrow,
+.band--sun .eyebrow { color: rgba(237, 240, 246, 0.78); }
 .hero__actions { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 2rem; }
 .hero__stats {
   display: grid;
