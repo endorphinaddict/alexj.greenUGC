@@ -328,6 +328,44 @@ p:last-child { margin-bottom: 0; }
 }
 .frame__meta strong { color: var(--sun); font-weight: 500; }
 
+/* ---------- video card ---------- */
+/* Self-hosted clip, so it plays inline instead of linking out. Native
+   controls own the bottom of the card; badges sit clear of them at the top. */
+.frame--video {
+  display: block;
+  padding: 0;
+  background: #000;
+}
+.frame--video:hover { transform: none; }
+.frame__video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+.frame__badges {
+  position: absolute;
+  top: 1.05rem;
+  left: 1.05rem;
+  right: 1.05rem;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+.frame__vlabel {
+  font-family: var(--data);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--shell);
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.95);
+}
+
 /* ---------- filter bar ---------- */
 .filters {
   display: flex;
