@@ -260,6 +260,10 @@ p:last-child { margin-bottom: 0; }
   margin: 0;
   padding: 0;
 }
+/* Five ranked reels read as one row, not four plus an orphan */
+@media (min-width: 900px) {
+  .frames { grid-template-columns: repeat(5, 1fr); }
+}
 .frame {
   position: relative;
   aspect-ratio: 9 / 16;
