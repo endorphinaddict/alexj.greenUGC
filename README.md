@@ -10,7 +10,7 @@ Live at **https://endorphinaddict.github.io/alexj.greenUGC/** via GitHub Pages, 
 index.html    Single page: hero, hook ticker, work, services, about, contact
 styles.css    All styling and design tokens
 main.js       Mobile nav, footer year
-assets/       Reel cover images (reel-01.jpg … reel-05.jpg, ranked by views)
+assets/       Reel cover images (reel-01.jpg … reel-04.jpg + demo-supplement.mp4, ranked by views)
 ```
 
 ## The work section
