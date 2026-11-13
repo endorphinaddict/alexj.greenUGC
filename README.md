@@ -57,6 +57,30 @@ Two traps, both hit once already:
 When you overwrite a file without renaming it, bump the `?v=` on its reference in
 `index.html`, or browsers will keep serving the old one.
 
+### Cutting dead space
+
+The house style is no dead air: every moment of a talking-head clip where nobody is speaking
+gets cut. `tools/cut_dead_space.py` does it with jump cuts:
+
+```
+pip install faster-whisper     # only its bundled voice detector is used, no model download
+python3 tools/cut_dead_space.py SOURCE.mp4 OUT.mp4 --dry-run   # see the cut list first
+python3 tools/cut_dead_space.py SOURCE.mp4 OUT.mp4
+```
+
+The rules it follows:
+
+- A neural voice detector decides what counts as talking. A volume gate can't tell speech
+  from room hum or music.
+- Each phrase keeps 0.05s either side, so no word gets clipped. That's `--pad`.
+- A pause is cut only if more than 0.1s would go. Shorter breaths mid-sentence stay, because
+  cutting them adds a visible jump and saves nothing. That's `--min-cut`.
+- Cuts land on whole frames, so sound stays in sync after any number of cuts.
+
+Run it on the raw footage *before* captions go on in CapCut. Burned-in captions can't be re-timed
+afterwards, and a cut can land mid-caption. A filler word ("um") still counts as talking, so
+those have to be cut by hand.
+
 ## Contact
 
 Email and social handles appear in the contact section and the footer. There's no form; the
