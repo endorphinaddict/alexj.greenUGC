@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Hook Lab</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <h1>Hook Lab</h1>
+  <p>UGC hooks + full scripts for any product. Built on <b>Hook → Problem → Solution → CTA</b>.</p>
+</header>
+
+<main class="layout">
+  <section class="panel" aria-label="Product details">
+    <label>Product name
+      <input id="product" placeholder="e.g. GlowDrop Vitamin C Serum" autocomplete="off">
+    </label>
+
+    <label>Category
+      <select id="category"></select>
+    </label>
+
+    <div class="field">
+      <div class="field-head"><span>Target audience</span><small>one per line · tap to add</small></div>
+      <textarea id="audiences" rows="2" placeholder="Leave empty to use category defaults"></textarea>
+      <div class="chips" id="audience-chips"></div>
+    </div>
+
+    <div class="field">
+      <div class="field-head"><span>Problem the viewer has</span><small>one per line · tap to add</small></div>
+      <textarea id="pains" rows="3" placeholder="e.g. breakouts&#10;dull skin"></textarea>
+      <div class="chips" id="pain-chips"></div>
+    </div>
+
+    <div class="field">
+      <div class="field-head"><span>What the product does</span><small>result, as a noun phrase</small></div>
+      <textarea id="benefits" rows="3" placeholder="e.g. clear skin&#10;a smoother texture"></textarea>
+      <div class="chips" id="benefit-chips"></div>
+    </div>
+
+    <div class="field">
+      <div class="field-head"><span>Hook styles</span><small>none selected = all</small></div>
+      <div class="chips" id="type-chips"></div>
+    </div>
+
+    <label>CTA / offer
+      <select id="offerType">
+        <option value="restock">Just restocked</option>
+        <option value="sale">Current sale</option>
+        <option value="launch">New launch</option>
+        <option value="bundle">Bundle deal</option>
+        <option value="shipping">Free shipping</option>
+        <option value="custom">Custom…</option>
+        <option value="none">No offer</option>
+      </select>
+    </label>
+    <label id="offer-wrap" hidden>Custom offer line
+      <input id="offer" placeholder="e.g. Buy 2, get 1 free until Sunday.">
+    </label>
+
+    <label>Hooks per style
+      <select id="perType"><option>1</option><option selected>2</option><option>3</option></select>
+    </label>
+
+    <button id="generate" class="primary">Generate hooks</button>
+  </section>
+
+  <section class="results" aria-live="polite">
+    <div class="bar">
+      <h2>Hooks <span id="count"></span></h2>
+      <div class="bar-actions">
+        <button id="show-favs" class="ghost">★ Saved (0)</button>
+        <button id="copy-favs" class="ghost">Copy saved</button>
+      </div>
+    </div>
+    <div id="out" class="cards"></div>
+    <details class="framework" open>
+      <summary>The framework (what each hook needs)</summary>
+      <ol>
+        <li><b>Hook</b>: target a specific audience, evoke an emotion, have interesting visuals.</li>
+        <li><b>Problem</b>: the issue the viewer has that relates to the product.</li>
+        <li><b>Solution</b>: what the product does that solves it.</li>
+        <li><b>CTA</b>: end on the current sale or the restock.</li>
+      </ol>
+    </details>
+  </section>
+</main>
+
+<div id="toast" role="status"></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
