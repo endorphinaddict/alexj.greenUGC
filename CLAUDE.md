@@ -34,7 +34,8 @@ Follow these on every edit. They come from his direct feedback.
   there, so no word endings were clipped.
 - Run it on raw footage before captions and overlays go on.
 - **One exception he asked for:** the opening hook clip ("you've probably seen videos like this")
-  holds ~2s after its last word, so the AI influencer pop-up plays longer. The pop-up runs for the
+  holds ~1s after its last word, so the AI influencer pop-up plays longer (he tried 2s, then
+  settled on 1s). The pop-up runs for the
   whole hook clip and disappears on the exact frame of the cut to the next clip.
 
 ## Music
