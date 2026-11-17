@@ -182,3 +182,42 @@ text style and structure to the reference as closely as possible.
   fades out over the last 0.4s. (Add the song as two separate ffmpeg inputs; `asplit` into
   `acrossfade` silently truncated the audio to 2.7s.) Start the results clip at ~0.34s so the stylus
   stays off the revenue number for the whole hold.
+
+## Format: "OpenArt + YouTube is going to be crazy" (GTA 6 / YT Shorts talking video, ~35s)
+
+Source: his example `Footage/Example Video/OpenArt and Youtube is going to be crazy #openartpartner.mp4`
+(720x1280, 34.7s, talking, no Notion page). Same family as the AI Influencer format.
+
+Structure (reference cut points): talking hook 0-13.5s -> screen section 13.5-29.4s (tablet/laptop
+with stylus, voiceover) -> talking 29.4-34.7s. Screen cuts at 16.6, 18.9, 20.0, 22.1, 24.0, 26.3.
+Script (word for word): "Every day, every week, every month. You only have 14 days to learn YouTube
+automation cause when GTA 6 drops, it's gonna be the biggest opportunity for everyone that already has
+this skill. So let me show you how you can start in less than 30 seconds before you get left behind.
+Go to YouTube and find an animated channel pulling millions of views. Cause this is how much YouTube
+pays per million views. So screenshot the page, then go to openart.ai/direct, scroll down to
+quickstarts and click explainer. Type a prompt like this with the screenshot for reference. It's gonna
+vibe direct you YouTube shorts like this up to five minutes long. Now start posting these twice a day
+to start getting payouts like this. If you want the prompt I use, comment AI and I'll DM it to you."
+
+Overlays in the example:
+- Hook row at the top for the whole talking hook: a GTA 6 key-art image, then "+ YT Shorts =", then 🤑.
+- Payout counter cards stacked at the left beside his face while he says "every day, every week,
+  every month": $500, then $3,500, then $15,000 (one appears per phrase, all stay). Keep them beside
+  his face, never over it.
+- Earnings card ("Your estimated revenue $13,682.08") appears at the top, above his head, on
+  "getting payouts like this" (he points up).
+- Final CTA: top text `Comment "ai" for the full prompt` (two lines) over the last line.
+- Captions are 1-2 words (matches his rule).
+
+His clips for this (pushed Nov 17, 01:30-02:23), in script order, identified from transcripts and frames:
+0453 "Every day, every week, every month" | 0458 "You only have 14 days to learn YouTube automation" |
+0469 "Because when GTA 6 drops..." | 0471 "So let me show you... left behind" |
+0476/0477/0478 three takes of "Go to YouTube and find an animated channel..." (screen) |
+0481 "Because this is how much YouTube pays per million views" (Google results) |
+0483 "So screenshot the page" | 0485 "Then go to openart.ai/direct" | 0486 "Scroll down to quickstarts
+and click explainer" | 0489 "Type a prompt like this with the screenshot for reference" |
+0490/0493 two takes of "It's gonna vibe direct... five minutes long" (generated video) |
+0495 "Now start posting these twice a day... payouts like this" | 0497 CTA "If you want the prompt I use,
+comment AI and I'll DM it to you."
+Duplicate takes: pick one per line (prefer the cleanest, usually the last).
+Assets still needed from him: the GTA 6 image, the $500 / $3,500 / $15,000 cards, the music/riser.
