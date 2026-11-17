@@ -21,9 +21,9 @@ W, H, FPS = 1080, 1920, 30
 
 TITLE = ["Making a passive income business", "in less than 40 seconds"]   # 😭 after line 2, as in the example
 
-# Hook cuts in ns3 (his direction): sitting down -> cracking open the drink -> countdown, ending on the
+# Hook cuts in ns3 (his direction): sitting down -> cracking open the drink and taking a sip -> countdown, ending on the
 # finger snap at the camera (snap transient at 8.94s).
-HOOK = [(1.00, 2.25), (2.45, 3.60), (5.60, 9.03)]
+HOOK = [(1.00, 2.25), (2.45, 5.40), (5.60, 9.03)]   # his follow-up: keep the sip (crack 2.85, sip 4.0-5.1, can down 5.4)
 HOOK_CROP = (400, 0, 1121, 1080)        # x, y, w, h in the 1920x1080 hook clip -> scaled to 1080x1040
 
 # Steps: (label lines, screen-recording start, end, speed, crop x, y, w) ; crop h = w * 780/1080
