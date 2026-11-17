@@ -15,6 +15,14 @@ Follow these on every edit. They come from his direct feedback.
   above the head (y ~55).
 - Captions sit at y ~1242, below the chin.
 
+## Caption font
+
+- Use CapCut's **"Classic"** font. That is Proxima Nova Semibold (paid), so render with its free
+  look-alike **Montserrat SemiBold** (OFL): `npm pack @fontsource/montserrat`, take
+  `files/montserrat-latin-600-normal.woff2` and convert it to TTF with fontTools.
+- Captions: Montserrat SemiBold 58px, white, 6px black outline, lowercase, 2-3 words at a time.
+  The top "Comment "AI" for the full guide" text uses the same font at 56px.
+
 ## Assets that must appear
 
 - Earnings picture on "thousands of dollars" **and** on "get payouts like this" (he points up at the
