@@ -111,3 +111,48 @@ Gotchas learned the hard way:
 - No face detector model is available offline: mark the head zone by eye on a gridded frame.
 - The Instagram logo is drawn in code (no asset supplied); swap in the real PNG if he has it.
 - Edited videos only live in the chat unless saved; remind him to download them.
+
+## Format: "Claude YouTube" — no-talking version (12s, music only)
+
+Source: Notion page "Claude YouTube" (no-talking example, 720x1280, 12.3s). Build at 1080x1920, 30fps.
+No speech, so there is nothing to transcribe: cuts follow the steps below, not his voice. The tight-cut
+spirit still applies (no idle frames; each clip trimmed to the action).
+
+Hard rules from the brief:
+- The video must use ONE approved Quick Start: Explainer, Short Film, Product Ad or Ad Remake
+  (the example uses **Explainer**). Never the plain text prompt box or any other Quick Start.
+- The results screen must be his **real** numbers. Never invent or edit revenue.
+- The "$453/day" in the title is the example's title; do not present it as a promised rate.
+
+Timeline (reference cut points; durations in seconds):
+| Time | Clip | On-screen text |
+|---|---|---|
+| 0.00-2.33 | Face-cam hook: shocked, pulling glasses down; no talking | Claude + Shorts graphic and title "= $453/day 🤑" |
+| 2.33-3.37 | Screen recording, stylus pointing: claude.ai | "Go to Claude" |
+| 3.37-4.80 | Claude with the prompt | "Copy this prompt" |
+| 4.80-6.03 | Claude's output (ideas/scripts) | "Copy your favorite script" |
+| 6.03-7.43 | Typing openart.ai/direct in the browser | "Go to openart.ai/direct" |
+| 7.43-9.10 | OpenArt Quick Starts, pointing at Explainer | "Go to Quick Start" / "> Explainer" (2 lines) |
+| 9.10-10.27 | Explainer form, pasting the script | "Paste script" |
+| 10.27-11.47 | The generated video playing | "RESULTS 🔥" |
+| 11.47-12.30 | His real revenue/results screen | "post everyday and get payouts like these 💰" (2 lines) |
+
+Layout (1080x1920 coordinates, measured off the reference):
+- Hook graphic `Claude-Shorts-hook.png` (2137x736 RGBA; opaque area x 90-2086, y 24-719): about 700px
+  wide, spanning x ~180-880. In the reference it sits at y ~160-430 with the title "= $453/day 🤑"
+  centred just under it (y ~530). **Keep both above his hair line** (never over his face).
+- Step labels: centred horizontally, white semibold with a dark outline/soft shadow (CapCut "Classic"
+  look, ~60px), centre at y ~610 (about 30% from the top). Two-line labels use ~75px line spacing
+  (y ~727 and ~803 for the Quick Start step). "RESULTS 🔥" sits at y ~550 over the video; the final
+  CTA is two lines at y ~477 and ~550.
+- No pop-up pictures in this format: the screen recordings carry the content. If a label would cover
+  his stylus/pointing target, nudge it so it does not hide what he is pointing at.
+- Audio: music only. Use `Claude-YouTube-no-talking-song-12s.mp3` (12.2s, loud and steady, mean
+  about -11.5 dB), no riser, no voice. Fade out in the last ~0.4s.
+
+Footage needed from him: one hook face-cam clip, one screen-recording clip per step above (8 clips
+of ~1-1.7s of useful action), the generated video, and his real results screen. Identify each clip by
+looking at the frames (there is no speech to transcribe), and tell him if a step is missing.
+
+Open question for him: the "1-2 words per caption" rule is for talking videos; this format's labels
+are 3-5 word steps. Confirm whether to keep the reference wording or shorten the labels.
