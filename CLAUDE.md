@@ -10,7 +10,9 @@ Follow these on every edit. They come from his direct feedback.
 - Find the head zone per clip before placing anything. In the DJI talking clips at 1080x1920 the head
   (hair and face) is roughly x 100-710, y 260-1000. Hair top is as low as y=380 in some clips.
 - Keep the top hook row and the top call-to-action text above the hair line (they live at y < 240).
-- Pop-ups with a 9:16 shape (e.g. the dance clip) go to the side of the head (x >= 730, 320px wide).
+- Pop-ups with a 9:16 shape (e.g. the dance clip) go to the side of the head, 320px wide. In the hook
+  clip he holds the pen up at x ~690-735, y ~740-1000: place the AI influencer clip **on top of the
+  pen, covering it** (top-left at x=660, y=440), which still leaves ~90px clear of his face.
 - Cards (views, earnings) go below the chin (y ~1290) or, when he points to the top of the screen,
   above the head (y ~55).
 - Captions sit at y ~1222, below the chin.
@@ -29,6 +31,8 @@ Follow these on every edit. They come from his direct feedback.
 - Each caption appears when its first word starts and holds until the next caption.
 - The caption line is centred at y ~1222: below the chin and clear of the cards at y ~1290.
 - The top "Comment "AI" for the full guide" text uses the same font at 56px.
+- The "+" and "=" in the hook row are typed in the caption font and caption style (72px, white,
+  thin outline, soft shadow), not drawn shapes.
 
 ## Assets that must appear
 
