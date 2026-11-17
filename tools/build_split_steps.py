@@ -30,7 +30,7 @@ HOOK_CROP = (400, 0, 1121, 1080)        # x, y, w, h in the 1920x1080 hook clip 
 STEPS = [
     (["Step 1: go to chatgpt"],                                12.6, 16.6, 1.25, 310, 60, 1300),
     (["Step 2: search unsaturated", "businesses in your area"], 17.2, 28.0, 3.0, 485, 40, 1350),
-    (["Step 3: pick one you like"],                            32.5, 38.5, 1.5, 485, 40, 1350),
+    (["Step 3: pick one you like"],                            36.5, 37.83, 1.0, 485, 40, 1350),   # no scrolling: just the highlight (37.0-37.85), real speed
     (["Step 4: go to foundable.com"],                          93.3, 95.2, 1.0, 310, 70, 1300),   # clean landing on the home page
     (["Step 5: paste your prompt"],                            49.6, 51.8, 1.0, 310, 70, 1300),   # paste at 49.9s, prompt shown until the page leaves at 51.85s
     (["Step 6: let it cook"],                                  61.8, 88.0, 7.0, 605, 20, 1315),   # crop keeps "$0.00" out

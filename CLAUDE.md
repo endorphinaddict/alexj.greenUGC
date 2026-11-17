@@ -319,7 +319,7 @@ labels are full phrases, as in the example.
   | "Step 3: pick one you like" | "Step 4: go to foundable.com" (his spelling of the site) | "Step 5: paste
   your prompt" | "Step 6: let it cook" | "Step 7: passive income achieved". No step skipped.
 - Screen-recording windows (src s, speed): 1: 12.6-16.6 x1.25 (Google -> ChatGPT) | 2: 17.2-28.0 x3 (typing
-  and sending the search) | 3: 32.5-38.5 x1.5 (the list of businesses, picking one) | 4: 93.3-95.2 x1 (clean
+  and sending the search) | 3: 36.5-37.83 x1 (his call: no scrolling, only him highlighting the business, 37.0-37.85) | 4: 93.3-95.2 x1 (clean
   landing on the foundable.com home page; the first visit at 48.7 has the prompt pasted almost at once) |
   5: 49.6-51.8 x1 (empty box, paste at 49.9, prompt shown until 51.85) | 6: 61.8-88.0 x7 (the build) |
   7: 107.5-115.3 x2 (the finished pet-grooming website scrolling; he asked for it shorter, so it ends as the
