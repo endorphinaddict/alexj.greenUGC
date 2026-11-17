@@ -154,5 +154,7 @@ Footage needed from him: one hook face-cam clip, one screen-recording clip per s
 of ~1-1.7s of useful action), the generated video, and his real results screen. Identify each clip by
 looking at the frames (there is no speech to transcribe), and tell him if a step is missing.
 
-Open question for him: the "1-2 words per caption" rule is for talking videos; this format's labels
-are 3-5 word steps. Confirm whether to keep the reference wording or shorten the labels.
+**Decided by him: copy this video 1:1.** Use the reference's label wording exactly as written
+(3-5 word steps, two-line labels where the reference has two lines). The "1-2 words per caption" rule
+is only for talking videos; it does not apply to this no-talking format. Match timing, positions,
+text style and structure to the reference as closely as possible.
