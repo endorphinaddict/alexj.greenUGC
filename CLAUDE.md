@@ -20,12 +20,14 @@ Follow these on every edit. They come from his direct feedback.
 - Use CapCut's **"Classic"** font. That is Proxima Nova Semibold (paid), so render with its free
   look-alike **Montserrat SemiBold** (OFL): `npm pack @fontsource/montserrat`, take
   `files/montserrat-latin-600-normal.woff2` and convert it to TTF with fontTools.
-- Caption style (matched to a reference he supplied): **phrase captions**, not 2-3 word chunks.
-  Montserrat SemiBold 50px, white, thin ~3px near-black outline plus a soft drop shadow (blurred,
-  offset ~3px down), up to two centred lines of ~26 characters, 58px line height.
-- All lowercase, no punctuation (keep "$5,000", "buzzy.now", "i'll"). Split each sentence into the
-  fewest evenly sized captions that fit, so no caption is left with a single orphan word.
-- The caption block is centred at y ~1222: below the chin and clear of the cards at y ~1290.
+- Caption look (matched to a reference he supplied): Montserrat SemiBold 50px, white, thin ~3px
+  near-black outline plus a soft drop shadow (blurred, offset ~3px down).
+- **One line, 1-2 words per caption** (his latest call; he tried 2-line phrase captions first).
+  Pair words by phrase: "of"/"to"/"the"/"my"... lead into the next word, so a caption should not
+  end on one; never pair across a comma or sentence end; keep pairs short (<= 18 characters).
+- All lowercase, no punctuation (keep "$5,000", "buzzy.now", "i'll").
+- Each caption appears when its first word starts and holds until the next caption.
+- The caption line is centred at y ~1222: below the chin and clear of the cards at y ~1290.
 - The top "Comment "AI" for the full guide" text uses the same font at 56px.
 
 ## Assets that must appear
