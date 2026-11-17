@@ -249,3 +249,8 @@ Assets still needed from him: the GTA 6 image, the $500 / $3,500 / $15,000 cards
   `tight_keeps` now drops such blips; before, a 30 ms click 0.12 s after the last word merged into the
   group and left ~0.15 s of silence. Check the tail of every clip: the cut should land ~0.05 s after the
   voice stops, not after the last click.
+- **Payout cards, his follow-up:** all three calculator cards must be the **same size** and in **one straight
+  column** (same x = 730, 300x162 each, evenly spaced; the first and last sit directly above the
+  fingertip at their phrase, the middle one halfway between), still never over his face. The raw crops
+  differ (card1 has no small "500x7" line, so it is shorter): pad card1's top with black and trim card3's
+  last rows so all are 247x133 before scaling.

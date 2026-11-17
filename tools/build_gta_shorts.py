@@ -125,8 +125,20 @@ def cta_png(path):
     img.save(path)
 
 
-def card(src, path, width=300):
+CARD_NATIVE = (247, 133)   # every payout card is normalised to this size before scaling
+
+
+def card(src, path, width=300, normalize=False):
     im = Image.open(src).convert("RGB")
+    if normalize:
+        # The three calculator crops differ (card1 has no small "500x7" line above the number, so it is
+        # shorter). Pad card1's top with the calculator's own black, trim card3's last rows, so all three
+        # are the same size and layout.
+        w, h = CARD_NATIVE
+        canvas = Image.new("RGB", (w, h), (0, 0, 0))
+        im = im.crop((0, 0, w, min(im.height, h)))
+        canvas.paste(im, (0, h - im.height))
+        im = canvas
     im.resize((width, round(im.height * width / im.width)), Image.LANCZOS).save(path)
     return round(im.height * width / im.width)
 
@@ -154,12 +166,14 @@ def main():
     # week (895, 1065), month (840, 1320). Head is x ~80-560, so the cards never touch his face.
     c0 = by["0453"]
     tips = {"card1": (904, 715), "card2": (895, 1065), "card3": (840, 1320)}
+    CARD_X = 730   # one straight column: same x for all three, same size; the "every month" caption ends at x~705
+    ys = {}
     for tok, name in ((0, "card1"), (2, "card2"), (4, "card3")):
-        h = card(f"{AG}/{name}.png", f"{OV}/{name}.png")
-        tx, ty = tips[name]
-        # centred on the fingertip; card3 is nudged 20px right so it does not touch the "every month" caption
-        shift = 20 if name == "card3" else 0
-        layers.append((f"{OV}/{name}.png", min(W - 300 - 10, tx - 150 + shift), ty - 25 - h, c0["wf"][tok], c0["f1"]))
+        h = card(f"{AG}/{name}.png", f"{OV}/{name}.png", normalize=True)
+        ys[name] = tips[name][1] - 25 - h            # directly above that phrase's fingertip
+    ys["card2"] = (ys["card1"] + ys["card3"]) // 2   # evenly spaced between the other two (still above his finger)
+    for tok, name in ((0, "card1"), (2, "card2"), (4, "card3")):
+        layers.append((f"{OV}/{name}.png", CARD_X, ys[name], c0["wf"][tok], c0["f1"]))
 
     # earnings card above his head on "payouts like this"
     c = by["0495"]
