@@ -262,3 +262,44 @@ Assets still needed from him: the GTA 6 image, the $500 / $3,500 / $15,000 cards
   "+ YT Shorts =" and the emoji unchanged, the row centred at y ~190 (still above the hair line, y < 300).
   The picture is cropped from low-res example frames, so a larger size gets softer; ask for the real
   GTA 6 art if he wants it bigger still.
+
+## Format: "Split-screen steps" (GTA 6 rent video, `Footage/Example Video/fixed.mp4`)
+
+His next template to replicate with new wording/campaign (he will say what to change). Analysis of the
+example (1080x1920, 30fps, 35.64s, h264 ~10 Mbps, black background). This is the same format as the earlier
+Notion page "Money In 123" (no-talking split screen, 10 steps, comment-"direct"/"AI" CTA).
+
+Timeline (seconds):
+| Time | Layout | Text |
+|---|---|---|
+| 0.00-4.87 | HOOK: face-cam video fills y ~520-1560 (1080 wide) on black; title above it | "Using GTA 6 to earn next months rent / in under 40 seconds 😭" (2 lines, y ~417 and ~483, ~58px, white, centred) |
+| 4.87-32.60 | SPLIT SCREEN (see below) | step labels |
+| 32.60-35.64 | CTA: top text, face-cam zoomed below (y ~540-1380) | `Comment "AI" if you / want the guide I follow` (2 lines, y ~400 and ~480, ~76px, white with dark outline) |
+
+Hook detail: he reacts, then counts down with his fingers while saying "Oh, three, two, one" (voice at
+0.0, 1.2, 3.1, 3.7s). A cut at 1.33s goes from the first reaction shot to the counting shot.
+
+Split screen (4.87-32.6), three stacked zones, the face is never covered:
+- TOP (y 0-900, 1080x900): the same continuous face-cam shot of him sitting, glancing at the screen.
+- MIDDLE label band (y ~900-1140, plain black): one step label, white semibold (CapCut "Classic" look),
+  centred, no visible outline, sized to fit: 2-line labels ~60-80px (y ~975 and ~1050), 1-line ~68px
+  (y ~1010). Label text changes at each step.
+- BOTTOM (y ~1140-1920, 1080x780): screen recording of that step, filling the width.
+
+Step labels and the times they change (copy this wording style; he will give new wording):
+4.87 "Step 1: search when gta 6 comes out" | 8.63 "Step 2: check how much youtube pays" |
+11.47 "step 3: search rain sounds" (lowercase "step") | 13.07 "Step 4: Notice the millions of views" |
+15.50 "Step 5: go to openart.ai/direct" | 18.03 "Step 6: Scroll to quick starts" |
+21.17 "Step 7: pick short film and enter your details" | 26.40 "Step 8: Watch the result" |
+30.50 "Step 10: post to youtube" (the example skips step 9; ask him whether to copy that) | 32.60 CTA.
+Step lengths run 1.6-5.2s (shortest step 3, longest step 7 while he fills in the form).
+
+Audio: NO music. Mostly quiet room sound with typing/sighing (about -30 to -50 dB) under the whole
+split screen; his voice only in the hook count and the CTA (-16 to -21 dB). CTA line spoken:
+"And if you want the workflow that I use, comment AI and I'll send it to you." (32.5-35.4s).
+Overall -20.2 LUFS, peak -0.5 dBFS. No riser. No timer is visible in this version (the old Notion page
+mentioned a timer overlay with blend mode Screen; ask before adding one).
+
+Rules that carry over: tight cuts, nothing over his face (the layout keeps text/screens in their own
+zones), verify any revenue numbers are real. The 1-2-word caption rule does NOT apply here: step
+labels are full phrases, as in the example.
