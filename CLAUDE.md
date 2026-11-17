@@ -221,3 +221,24 @@ and click explainer" | 0489 "Type a prompt like this with the screenshot for ref
 comment AI and I'll DM it to you."
 Duplicate takes: pick one per line (prefer the cleanest, usually the last).
 Assets still needed from him: the GTA 6 image, the $500 / $3,500 / $15,000 cards, the music/riser.
+
+### Built once already (OpenArt + YouTube / GTA 6, Nov 17 clips)
+
+- Script: `tools/build_gta_shorts.py` (set `EDIT_WORKDIR`; needs `rb/` clips, `rb.json` word timings from
+  `transcribe_clips.py`, `assets/` music.mp3 + riser_metallic.mp4, `assets_gta/` gta.png, card1-3.png,
+  emoji.png, earnings.jpg, and the font). Single pass; overlays are enabled by frame number.
+- He told me to copy the GTA 6 image and the payout cards straight out of the example video. Crops
+  (example is 720x1280): GTA image box (50,135,316,284); cards from the frame at t=2.3s:
+  card1 (73,396,320,507), card2 (73,562,320,695), card3 (73,748,320,883). They are low-res (~250px) and
+  scaled to 300px wide.
+- Takes used: 0478 (of 0476/0477/0478) and 0493 (of 0490/0493). Fixes: whisper wrote "openr .ai -direct"
+  for openart.ai/direct and "boasting" for "posting" in the final clip; patched in `fix_words`.
+- Placement from the head-zone check: in the hook clips his head is x ~80-560, hair top y ~500, so the
+  payout cards go to the RIGHT of his head (x 700, stacked from y 520) where he points up, one per
+  phrase ("every day / week / month"), all gone at the cut; hook row at y ~90-240; earnings card on
+  "payouts" above his head (x 330, y 55, 420px wide); `Comment "ai" for the full prompt` at the top over
+  the last clip. In the close-up end clips (0495, 0497) his face and chin are low, so captions sit at
+  y 1580 instead of 1222.
+- Audio reused from the AI Influencer setup (he did not specify): music from 4.45s, metallic riser ending
+  on the cut into the screen section.
+- Check: re-transcribe the final mix and confirm the whole script is still there (it was).
