@@ -313,8 +313,8 @@ labels are full phrases, as in the example.
   `Footage/new save 2.mp4` = 106s face-cam of him sitting (room sound with clicks/typing);
   `Footage/new save 3.mp4` = 13s hook. Use video stream `0:v:0` (the files carry an extra cover-image stream).
 - Title: "Making a passive income business / in less than 40 seconds 😭" (his wording, emoji kept).
-- Hook cuts, his direction: sitting down (1.00-2.25s) -> cracking open the drink **and taking a sip** (2.45-5.40;
-  crack at 2.85, sip 4.0-5.1, can lowered by 5.4 — he asked for the sip to stay in) -> countdown "mmm" x3 with fingers (5.60-9.03) ending right after the finger snap at the camera (8.94s).
+- Hook cuts, his direction: sitting down (1.00-2.25s) -> cracking open the drink **and taking a sip** (2.45-4.70;
+  crack at 2.85, can reaches his lips at 4.2; he asked for the cut to the countdown half a second into the sip) -> countdown "mmm" x3 with fingers (5.60-9.03) ending right after the finger snap at the camera (8.94s).
 - Steps (labels exactly): "Step 1: go to chatgpt" | "Step 2: search unsaturated / businesses in your area"
   | "Step 3: pick one you like" | "Step 4: go to foundable.com" (his spelling of the site) | "Step 5: paste
   your prompt" | "Step 6: let it cook" | "Step 7: passive income achieved". No step skipped.
