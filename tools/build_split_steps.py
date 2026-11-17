@@ -39,6 +39,16 @@ STEPS = [
 TOP_CAM_START = 26.0                     # continuous face-cam take for the top half (ns2)
 TOP_CROP = (312, 0, 1296, 1080)          # -> 1080x900
 
+# The face-cam (ns2) and the screen recording (ns1) were filmed at the same time: ns1 time = ns2 time + SYNC.
+# Measured by matching each letter appearing in ChatGPT's box and in the URL bar to his key clicks (12.98-13.07s).
+# Each step's room sound is taken from that same moment and sped up with the step, so clicks land on the typing.
+SYNC = 13.03
+
+# Ending CTA (his clip): "Comment AI and I'll send you the website" (speech 0.21-1.94s in a 3840x2160 clip).
+CTA_CLIP, CTA_IN, CTA_OUT = "cta/cta.MP4", 0.18, 1.98
+CTA_CROP = (112, 0, 2777, 2160)          # 1080:840 window on his face -> 1080x840 at y 540-1380, like the example
+CTA_TEXT = ['Comment "AI" and I\'ll', "send you the website"]
+
 
 def fit_font(lines, max_w, start):
     size = start
@@ -76,19 +86,75 @@ def label_png(lines, path):
     img.save(path)
 
 
+def atempo_chain(sp):
+    parts = []
+    while sp > 2.0:
+        parts.append("atempo=2.0")
+        sp /= 2.0
+    parts.append(f"atempo={sp:.4f}")
+    return ",".join(parts)
+
+
+def step_audio(step_frames, out_wav):
+    """Room sound for each step taken from the same moment as the screen recording (ns1 = ns2 + SYNC) and sped up
+    with the step, so his key clicks land on the on-screen typing. Rendered in its own audio-only pass: pulling
+    far-apart audio ranges inside the main graph makes ffmpeg buffer the face-cam's decoded video and run out of memory."""
+    g = [f"[0:a]aresample=48000,aformat=channel_layouts=stereo,volume=6dB,asplit={len(STEPS)}"
+         + "".join(f"[ra{i}]" for i in range(len(STEPS)))]
+    for i, ((lines, st, en, sp, *_c), n) in enumerate(zip(STEPS, step_frames)):
+        a0, a1, d = st - SYNC, en - SYNC, n / FPS
+        pad = max(0.0, -a0) / sp
+        g.append(f"[ra{i}]atrim=start={max(0.0, a0):.4f}:end={a1:.4f},asetpts=PTS-STARTPTS,{atempo_chain(sp)},"
+                 f"adelay={int(pad * 1000)}|{int(pad * 1000)},apad=whole_dur={d:.4f},atrim=0:{d:.4f},"
+                 f"afade=t=in:d=0.01,afade=t=out:st={d - 0.01:.4f}:d=0.01[sa{i}]")
+    g.append("".join(f"[sa{i}]" for i in range(len(STEPS))) + f"concat=n={len(STEPS)}:v=0:a=1[a]")
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-vn", "-i", f"{IN}/ns2.mp4", "-filter_complex", ";".join(g),
+                    "-map", "[a]", "-c:a", "pcm_s16le", out_wav], check=True)
+
+
+def cta_png(path):
+    f, size = fit_font(CTA_TEXT, 1030, 76)
+    img = Image.new("RGBA", (W, 220), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    for k, l in enumerate(CTA_TEXT):
+        d.text((W // 2, 70 + k * (size + 6)), l, font=f, fill="white", stroke_width=3, stroke_fill=(20, 20, 20), anchor="mm")
+    img.save(path)
+
+
 def main():
     out = sys.argv[1]
     title_png(f"{OV}/title.png")
     hook_frames = [round((b - a) * FPS) for a, b in HOOK]
     step_frames = [round((e - s) / sp * FPS) for _, s, e, sp, *_ in STEPS]
     HF, SF = sum(hook_frames), sum(step_frames)
-    total = (HF + SF) / FPS
+    CF = round((CTA_OUT - CTA_IN) * FPS)
+    total = (HF + SF + CF) / FPS
+    cta_png(f"{OV}/cta.png")
 
     cmd = ["ffmpeg", "-v", "error", "-stats", "-y",
            "-i", f"{IN}/ns3.mp4", "-i", f"{IN}/ns1.mp4", "-i", f"{IN}/ns2.mp4", "-i", f"{OV}/title.png"]
     for k, st in enumerate(STEPS):
         label_png(st[0], f"{OV}/label_{k}.png")
         cmd += ["-i", f"{OV}/label_{k}.png"]
+    # Pre-render the CTA (from a 4K clip) to a small 1080x1920 segment: feeding the 4K clip straight into the
+    # final graph makes ffmpeg buffer its decoded frames until the end of the timeline and run out of memory.
+    cx, cy, cw, chh = CTA_CROP
+    cta_seg = f"{OV}/cta_seg.mkv"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", f"{S}/fd/{CTA_CLIP}", "-i", f"{OV}/cta.png", "-filter_complex",
+                    f"[0:v:0]trim=start={CTA_IN:.4f}:end={CTA_OUT + 0.1:.4f},setpts=PTS-STARTPTS,fps={FPS},trim=end_frame={CF},"
+                    f"crop={cw}:{chh}:{cx}:{cy},scale=1080:840:flags=lanczos,setsar=1,format=yuv420p[cam];"
+                    f"color=c=black:s={W}x{H}:r={FPS}:d={CF / FPS:.4f},format=yuv420p[bg];[bg][cam]overlay=0:540:shortest=1[c1];"
+                    f"[c1][1:v]overlay=0:300,format=yuv420p[v];"
+                    f"[0:a]atrim=start={CTA_IN:.4f}:end={CTA_IN + CF / FPS:.4f},asetpts=PTS-STARTPTS,aresample=48000,"
+                    f"aformat=channel_layouts=stereo,afade=t=in:d=0.01,afade=t=out:st={CF / FPS - 0.02:.4f}:d=0.02[a]",
+                    "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "10",
+                    "-c:a", "pcm_s16le", cta_seg], check=True)
+    cta_vi = 4 + len(STEPS)
+    cmd += ["-i", cta_seg]
+    stepa_wav = f"{OV}/step_audio.wav"
+    step_audio(step_frames, stepa_wav)
+    stepa_i = cta_vi + 1
+    cmd += ["-i", stepa_wav]
     p = []
     # ---- hook: three cuts, face-cam in the middle band, title above
     hx, hy, hw, hh = HOOK_CROP
@@ -111,8 +177,8 @@ def main():
     tx, ty, tw, th = TOP_CROP
     p.append(f"[2:v:0]trim=start={TOP_CAM_START:.4f}:end={TOP_CAM_START + SF / FPS + 0.5:.4f},setpts=PTS-STARTPTS,"
              f"fps={FPS},trim=end_frame={SF},crop={tw}:{th}:{tx}:{ty},scale=1080:900:flags=lanczos,setsar=1,format=yuv420p[top]")
-    p.append(f"[2:a]atrim=start={TOP_CAM_START:.4f}:end={TOP_CAM_START + SF / FPS:.4f},asetpts=PTS-STARTPTS,aresample=48000,"
-             f"aformat=channel_layouts=stereo,volume=6dB[stepa]")
+    # room sound per step, synced to the screen recording (pre-rendered in its own pass, see step_audio)
+    p.append(f"[{stepa_i}:a]asetpts=PTS-STARTPTS[stepa]")
     p.append(f"color=c=black:s={W}x{H}:r={FPS}:d={SF / FPS:.4f},format=yuv420p[sbg]")
     p.append("[sbg][top]overlay=0:0:shortest=1[s1]")
     p.append("[s1][screen]overlay=0:1140:shortest=1[s2]")
@@ -121,12 +187,15 @@ def main():
         p.append(f"[{prev}][{4 + i}:v]overlay=0:900:enable='between(n,{f0},{f0 + n - 1})'[l{i}]")
         prev, f0 = f"l{i}", f0 + n
     p.append(f"[{prev}]null[stepsv]")
-    p.append("[hookv][hooka][stepsv][stepa]concat=n=2:v=1:a=1[v][a0]")
+    # ---- ending CTA (pre-rendered segment)
+    p.append(f"[{cta_vi}:v]setpts=PTS-STARTPTS,format=yuv420p[ctav]")
+    p.append(f"[{cta_vi}:a]asetpts=PTS-STARTPTS[ctaa]")
+    p.append("[hookv][hooka][stepsv][stepa][ctav][ctaa]concat=n=3:v=1:a=1[v][a0]")
     p.append("[a0]alimiter=limit=0.7:level=disabled[a]")   # can crack / snap transients overshoot after AAC; -3 dB keeps true peak under 0
     cmd += ["-filter_complex", ";".join(p), "-map", "[v]", "-map", "[a]", "-t", f"{total:.3f}",
             "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-r", str(FPS),
             "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out]
-    print(f"hook {HF} frames ({HF / FPS:.2f}s) + steps {SF} frames ({SF / FPS:.2f}s) = {total:.2f}s; "
+    print(f"hook {HF} frames ({HF / FPS:.2f}s) + steps {SF} frames ({SF / FPS:.2f}s) + CTA {CF} frames = {total:.2f}s; "
           f"step starts: " + ", ".join(f"{(HF + sum(step_frames[:k])) / FPS:.2f}" for k in range(len(STEPS))), flush=True)
     subprocess.run(cmd, check=True)
 

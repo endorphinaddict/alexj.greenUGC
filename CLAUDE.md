@@ -332,3 +332,15 @@ labels are full phrases, as in the example.
 - **Audio gotcha:** ffmpeg's `alimiter` normalises its output UP to the limit by default (`level=enabled`).
   Use `alimiter=limit=0.7:level=disabled` to actually cap transients; with the default, the true peak came
   out above 0 dBFS.
+- **Typing sound synced (his feedback):** the face-cam (`new save 2.mp4`) and the screen recording (`new save.mp4`)
+  were filmed together; screen time = face-cam time + 13.03s (`SYNC`), found by matching each letter appearing
+  in ChatGPT's box and the URL bar to his key clicks. Each step's room sound now comes from the same moment
+  as its screen footage and is sped up with it (`atempo`), so clicks land on the typing; the top face-cam
+  picture stays one continuous take. Check: in step 2 the clicks run 9.06-9.83s and the letters appear
+  9.13-9.86s. When a face-cam and a screen recording are filmed together, always sync them this way.
+- **CTA ending added:** his clip `DJI_20261117143144_0519_D.MP4` (3840x2160, "Comment AI and I'll send you the
+  website"; whisper mishears it as "Call me on AI"). Speech 0.18-1.98s, face cropped 1080:840 at y 540-1380 on
+  black, text `Comment "AI" and I'll / send you the website` above (y ~370-450), like the example's ending.
+- **Memory gotchas:** feed a 4K clip into the final graph only via a pre-rendered 1080x1920 segment, and render
+  far-apart audio ranges of a file in their own audio-only pass. Otherwise ffmpeg buffers decoded frames
+  waiting for later concat segments and the kernel kills it (it happened twice).
