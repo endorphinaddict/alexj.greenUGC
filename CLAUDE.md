@@ -258,3 +258,7 @@ Assets still needed from him: the GTA 6 image, the $500 / $3,500 / $15,000 cards
   last word. The clip (0458) now ends at 2.75s of the source (his voice is at -34 dB there and silent by
   2.78s) via `END_OVERRIDE` in `build_gta_shorts.py`; the default tight cut left ~0.05s more. When he says
   "cut it right after I finish", end the clip where the voice falls to about -35 dB, not at the pad.
+- **GTA 6 picture size:** he asked for it bigger. It is now 210px tall (about 375px wide, up from 150px), with
+  "+ YT Shorts =" and the emoji unchanged, the row centred at y ~190 (still above the hair line, y < 300).
+  The picture is cropped from low-res example frames, so a larger size gets softer; ask for the real
+  GTA 6 art if he wants it bigger still.

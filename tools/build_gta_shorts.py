@@ -93,7 +93,7 @@ def hook_row_png(path):
     """GTA 6 image + '+ YT Shorts =' + money-mouth emoji (his example's hook row), above the hair line."""
     f = bai.font(bai.FONT_CAP, 64)
     g = Image.open(f"{AG}/gta.png").convert("RGBA")
-    gh = 150
+    gh = 210            # his follow-up: GTA 6 picture bigger (was 150)
     g = g.resize((round(g.width * gh / g.height), gh), Image.LANCZOS)
     emo = Image.open(f"{AG}/emoji.png").convert("RGBA").resize((96, 96), Image.LANCZOS)
     text = "+ YT Shorts ="
@@ -102,8 +102,8 @@ def hook_row_png(path):
     gap = 22
     total = g.width + gap + tw + gap + emo.width
     x0 = (W - total) / 2
-    cv = Image.new("RGBA", (W, 200), (0, 0, 0, 0))
-    cy = 100
+    cv = Image.new("RGBA", (W, 260), (0, 0, 0, 0))
+    cy = 130
     cv.alpha_composite(g, (round(x0), cy - gh // 2))
     shadow = Image.new("RGBA", cv.size, (0, 0, 0, 0))
     ImageDraw.Draw(shadow).text((x0 + g.width + gap, cy + 3), text, font=f, fill=(0, 0, 0, 200),
@@ -164,7 +164,7 @@ def main():
     layers = []  # (png, x, y, fa, fb)
 
     hook_row_png(f"{OV}/hook_row.png")
-    layers.append((f"{OV}/hook_row.png", 0, 90, 0, by[HOOK_CLIPS[-1]]["f1"]))
+    layers.append((f"{OV}/hook_row.png", 0, 60, 0, by[HOOK_CLIPS[-1]]["f1"]))  # row centre stays at y~190
 
     # payout cards: one per phrase of "every day, every week, every month". Each card sits exactly ABOVE
     # his fingertip at that moment (he points up and the finger moves down the right side), centred on the
