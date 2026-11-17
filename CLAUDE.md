@@ -377,3 +377,11 @@ His direction: take the hook and CTA straight out of his finished edit `Footage/
   tail (from 2.1s into the file), and the music placed so it lines up with the CTA's music at the end (the one
   small jump in the music sits under the riser at the hook->demo cut).
 - Section loudness matched the example within ~1 LU (hook -17.4, new demo -16.8, example demo -17.7).
+- **Ending replaced (his feedback):** the example's "So make sure to save this video..." clip is gone. The video now
+  ends with two new close-up clips: `DJI_20261117165145_0543_D.MP4` ("Start posting these twice a day and you'll start
+  getting payouts like this", he points up) and `DJI_20261117165328_0545_D.MP4` ("And if you want the prompt that I
+  use, just comment AI and I'll send it to you"; whisper hears "call in AI", fixed in `fix_words`). Total 29.07s.
+  The "Estimated revenue $3,287.17" card (Notion "Revenue overlay", same figure as the hook; the other asset is
+  "Your estimated revenue $7,165.77") sits at the top, 420px wide at x 30, y 55, above his head and left of his
+  raised finger, from the word "payouts" to the end of that clip. Captions on these two close-ups sit at y 1580.
+  The last clip ends 0.25 s after the last word; the music continues from the demo and fades out over the last 0.8 s.

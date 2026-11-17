@@ -28,6 +28,12 @@ MUSIC_GAIN_DB = -10.2  # music level in the example
 RISER_START = 8.90     # Notion riser.mp3 starts at 8.90 in the example and peaks at the hook->demo cut
 
 DEMO = ["0531", "0532", "0535", "0540"]   # chat -> copy -> buzzy.now video generator -> result
+# His change: the example's "make sure to save this video..." ending is removed; two new close-up clips replace it.
+END = ["0543", "0545"]   # 0543 "Start posting these twice a day and you'll start getting payouts like this" (points up)
+                         # 0545 "And if you want the prompt that I use, just comment AI and I'll send it to you."
+END_CAP_Y = 1580         # close-ups: chin/mic sit around y 1250-1450, so captions go below (saved close-up rule)
+TAIL_AFTER_LAST_WORD = 0.25   # never clip the last word of the video
+REV_CARD = "rev_nov.png"      # "Estimated revenue $3,287.17" (the same figure already in the hook)
 
 # Hook row: "YT Shorts" text is burned in at x 335-705, y 222-318; erase it and put the Buzzy logo there.
 TEXT_BOX = (330, 218, 712, 322)
@@ -87,22 +93,32 @@ def caption_png(text, path):
     img.save(path)
 
 
-def fix_words(words):
+def fix_words(words, cid=None):
     w = [dict(x) for x in words]
     for x in w:
         if x["w"].lower().startswith(".now"):
             x["w"] = ".now"
+    if cid == "0545":       # whisper hears "just call in AI"; he says "just comment AI"
+        i = next(k for k, x in enumerate(w) if x["w"].lower().startswith("call"))
+        w[i]["w"] = "comment"
+        w[i]["e"] = w[i + 1]["e"]
+        del w[i + 1]
     return w
 
 
 def demo_plan():
     allw = json.load(open(f"{B}/new.json"))
+    allw.update(json.load(open(f"{B}/end.json")))
     clips, f0 = [], 0
-    for cid in DEMO:
-        path = glob.glob(f"{B}/new/*_{cid}_D.MP4")[0]
+    for cid in DEMO + END:
+        path = (glob.glob(f"{B}/new/*_{cid}_D.MP4") + glob.glob(f"{B}/end/*_{cid}_D.MP4"))[0]
         dur, fps, _ = bai.cds.probe(path)
         audio = bai.cds.load_audio(path)
         keeps, level = bai.tight_keeps(audio, dur, fps)
+        words = fix_words(allw[os.path.basename(path)], cid)
+        if cid == END[-1]:      # last clip of the video: let the final word finish, then a little room tone
+            ks_, ke_ = keeps[-1]
+            keeps[-1] = (ks_, min(math.floor(dur * fps) / fps, math.ceil((words[-1]["e"] + TAIL_AFTER_LAST_WORD) * fps) / fps))
         sl = np.concatenate([audio[int(s * 16000): int(e * 16000)] for s, e in keeps])
         rms = 20 * math.log10(float(np.sqrt((sl ** 2).mean())) + 1e-9)
         gain = max(-12.0, min(12.0, -20.0 - rms))
@@ -111,7 +127,6 @@ def demo_plan():
             n = max(1, round((ke - ks) * FPS))
             pieces.append((ks, ke, o, n))
             o += n
-        words = fix_words(allw[os.path.basename(path)])
 
         def out_frame(ts, pieces=pieces, end=o):
             for ks, ke, o0, n in pieces:
@@ -126,7 +141,8 @@ def demo_plan():
             fa = f0 if j == 0 else out_frame(words[a]["s"])
             fb = out_frame(words[caps[j + 1][1]]["s"]) if j + 1 < len(caps) else o
             out.append((text, fa, fb))
-        clips.append(dict(cid=cid, path=path, pieces=pieces, f0=f0, f1=o, gain=gain, caps=out))
+        wf = [out_frame(x["s"]) for x in words]
+        clips.append(dict(cid=cid, path=path, pieces=pieces, f0=f0, f1=o, gain=gain, caps=out, wf=wf, words=words))
         f0 = o
     return clips, f0
 
@@ -144,25 +160,29 @@ def main():
          f"[0:a]atrim=end={HOOK_END},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo[a]",
          "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "12", "-r", str(FPS),
          "-c:a", "pcm_s16le", hook])
-    # ---- 2. CTA: the example's ending as is
-    cta = f"{OV}/cta.mkv"
-    run(["ffmpeg", "-v", "error", "-y", "-ss", f"{CTA_START}", "-i", EX, "-t", f"{EX_END - CTA_START:.3f}",
-         "-vf", "setpts=PTS-STARTPTS,format=yuv420p", "-af", "asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo",
-         "-c:v", "libx264", "-preset", "veryfast", "-crf", "12", "-r", str(FPS), "-c:a", "pcm_s16le", cta])
     # ---- 3. demo: new clips, tight cuts, captions, voice + music + riser tail
     clips, F = demo_plan()
     D = F / FPS
-    music_start = (CTA_START + MUSIC_OFFSET) - D          # music lines up with the CTA's music at the end
+    D_demo = next(c for c in clips if c["cid"] == DEMO[-1])["f1"] / FPS
+    music_start = (CTA_START + MUSIC_OFFSET) - D_demo     # music continuity: where the example's music was at the old CTA cut
     riser_from = HOOK_END - RISER_START                  # riser tail continues from the cut
     cmd = ["ffmpeg", "-v", "error", "-y"]
     for c in clips:
         cmd += ["-i", c["path"]]
-    caps = []
+    caps = []   # (png, first frame, last frame + 1, y centre, x)
     for c in clips:
+        cy = END_CAP_Y if c["cid"] in END else CAP_Y
         for j, (text, fa, fb) in enumerate(c["caps"]):
             p = f"{OV}/cap_{c['cid']}_{j}.png"
             caption_png(text, p)
-            caps.append((p, fa, fb))
+            caps.append((p, fa, fb, cy, 0))
+    # estimated-revenue card at the top of the screen, above his head, on "payouts like this" (he points up)
+    c43 = next(c for c in clips if c["cid"] == "0543")
+    k_pay = next(i for i, w in enumerate(c43["words"]) if w["w"].lower().startswith("payouts"))
+    rev = Image.open(f"{B}/{REV_CARD}").convert("RGB")
+    rev = rev.resize((420, round(rev.height * 420 / rev.width)), Image.LANCZOS)
+    rev.save(f"{OV}/rev_top.png")
+    caps.append((f"{OV}/rev_top.png", c43["wf"][k_pay], c43["f1"], 55 + 80, 30))   # y top 55, x 30 (above the fingertip)
     for p, *_ in caps:
         cmd += ["-i", p]
     mi = len(clips) + len(caps)
@@ -182,26 +202,25 @@ def main():
             lab.append(f"[pv{i}_{j}][pa{i}_{j}]")
     g.append("".join(lab) + f"concat=n={len(lab)}:v=1:a=1[base][voice]")
     prev = "base"
-    for k, (p, fa, fb) in enumerate(caps):
-        g.append(f"[{prev}][{len(clips) + k}:v]overlay=0:{CAP_Y - 80}:enable='between(n,{fa},{fb - 1})'[c{k}]")
+    for k, (p, fa, fb, cy, cx) in enumerate(caps):
+        g.append(f"[{prev}][{len(clips) + k}:v]overlay={cx}:{cy - 80}:enable='between(n,{fa},{fb - 1})'[c{k}]")
         prev = f"c{k}"
     g.append(f"[{mi}:a]atrim=start={music_start:.3f}:end={music_start + D + 0.5:.3f},asetpts=PTS-STARTPTS,aresample=48000,"
-             f"aformat=channel_layouts=stereo,volume={MUSIC_GAIN_DB}dB,atrim=0:{D:.4f}[mus]")
+             f"aformat=channel_layouts=stereo,volume={MUSIC_GAIN_DB}dB,atrim=0:{D:.4f},afade=t=out:st={D - 0.8:.3f}:d=0.8[mus]")
     g.append(f"[{mi + 1}:a]atrim=start={riser_from:.3f},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo[ris]")
     g.append("[voice][mus][ris]amix=inputs=3:duration=first:normalize=0[da]")
     demo = f"{OV}/demo.mkv"
     cmd += ["-filter_complex", ";".join(g), "-map", f"[{prev}]", "-map", "[da]", "-t", f"{D:.4f}",
             "-c:v", "libx264", "-preset", "veryfast", "-crf", "12", "-r", str(FPS), "-c:a", "pcm_s16le", demo]
     run(cmd)
-    print(f"hook {HOOK_END:.2f}s + demo {D:.2f}s + CTA {EX_END - CTA_START:.2f}s; music under demo from {music_start:.2f}s", flush=True)
+    print(f"hook {HOOK_END:.2f}s + demo and new ending {D:.2f}s; music from {music_start:.2f}s", flush=True)
     for c in clips:
         print(f"  {c['cid']}: {(c['f1'] - c['f0']) / FPS:.2f}s  " + " | ".join(t for t, *_ in c["caps"]))
-    # ---- 4. join
-    run(["ffmpeg", "-v", "error", "-y", "-i", hook, "-i", demo, "-i", cta, "-filter_complex",
-         "[0:v][0:a][1:v][1:a][2:v][2:a]concat=n=3:v=1:a=1[v][a0];[a0]alimiter=limit=0.89:level=disabled[a]",
+    # ---- 4. join the hook and the demo/ending
+    run(["ffmpeg", "-v", "error", "-y", "-i", hook, "-i", demo, "-filter_complex",
+         "[0:v][0:a][1:v][1:a]concat=n=2:v=1:a=1[v][a0];[a0]alimiter=limit=0.89:level=disabled[a]",
          "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p",
          "-r", str(FPS), "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out])
-
 
 if __name__ == "__main__":
     main()
