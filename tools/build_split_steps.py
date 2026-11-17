@@ -28,7 +28,7 @@ HOOK_CROP = (400, 0, 1121, 1080)        # x, y, w, h in the 1920x1080 hook clip 
 
 # Steps: (label lines, screen-recording start, end, speed, crop x, y, w) ; crop h = w * 780/1080
 STEPS = [
-    (["Step 1: go to chatgpt"],                                12.6, 16.6, 1.25, 310, 60, 1300),
+    (["Step 1: go to chatgpt"],                                13.05, 16.6, 1.25, 310, 60, 1300),  # starts when the face-cam starts (no sound exists before)
     (["Step 2: search unsaturated", "businesses in your area"], 17.2, 28.0, 3.0, 485, 40, 1350),
     (["Step 3: pick one you like"],                            36.5, 37.83, 1.0, 485, 40, 1350),   # no scrolling: just the highlight (37.0-37.85), real speed
     (["Step 4: go to foundable.com"],                          93.3, 95.2, 1.0, 310, 70, 1300),   # clean landing on the home page
@@ -45,7 +45,7 @@ TOP_CROP = (312, 0, 1296, 1080)          # -> 1080x900
 SYNC = 13.03
 
 # Ending CTA (his clip): "Comment AI and I'll send you the website" (speech 0.21-1.94s in a 3840x2160 clip).
-CTA_CLIP, CTA_IN, CTA_OUT = "cta/cta.MP4", 0.18, 1.98
+CTA_CLIP, CTA_IN, CTA_OUT = "cta/cta.MP4", 0.18, 2.18   # his note: never clip the last word; speech ends ~1.96, keep the tail to the clip end
 CTA_CROP = (112, 0, 2777, 2160)          # 1080:840 window on his face -> 1080x840 at y 540-1380, like the example
 CTA_TEXT = ['Comment "AI" and I\'ll', "send you the website"]
 
@@ -104,7 +104,7 @@ def step_audio(step_frames, out_wav):
     for i, ((lines, st, en, sp, *_c), n) in enumerate(zip(STEPS, step_frames)):
         a0, a1, d = st - SYNC, en - SYNC, n / FPS
         pad = max(0.0, -a0) / sp
-        g.append(f"[ra{i}]atrim=start={max(0.0, a0):.4f}:end={a1:.4f},asetpts=PTS-STARTPTS,{atempo_chain(sp)},"
+        g.append(f"[ra{i}]atrim=start={max(0.0, a0):.4f}:end={a1 + 0.5 * sp:.4f},asetpts=PTS-STARTPTS,{atempo_chain(sp)},"   # extra source so atempo never comes up short
                  f"adelay={int(pad * 1000)}|{int(pad * 1000)},apad=whole_dur={d:.4f},atrim=0:{d:.4f},"
                  f"afade=t=in:d=0.01,afade=t=out:st={d - 0.01:.4f}:d=0.01[sa{i}]")
     g.append("".join(f"[sa{i}]" for i in range(len(STEPS))) + f"concat=n={len(STEPS)}:v=0:a=1[a]")

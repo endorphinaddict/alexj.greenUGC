@@ -318,7 +318,8 @@ labels are full phrases, as in the example.
 - Steps (labels exactly): "Step 1: go to chatgpt" | "Step 2: search unsaturated / businesses in your area"
   | "Step 3: pick one you like" | "Step 4: go to foundable.com" (his spelling of the site) | "Step 5: paste
   your prompt" | "Step 6: let it cook" | "Step 7: passive income achieved". No step skipped.
-- Screen-recording windows (src s, speed): 1: 12.6-16.6 x1.25 (Google -> ChatGPT) | 2: 17.2-28.0 x3 (typing
+- Screen-recording windows (src s, speed): 1: 13.05-16.6 x1.25 (starts when the face-cam starts, so it has
+  synced sound; `adelay` padding before it made the step audio 0.3 s short) (Google -> ChatGPT) | 2: 17.2-28.0 x3 (typing
   and sending the search) | 3: 36.5-37.83 x1 (his call: no scrolling, only him highlighting the business, 37.0-37.85) | 4: 93.3-95.2 x1 (clean
   landing on the foundable.com home page; the first visit at 48.7 has the prompt pasted almost at once) |
   5: 49.6-51.8 x1 (empty box, paste at 49.9, prompt shown until 51.85) | 6: 61.8-88.0 x7 (the build) |
@@ -340,8 +341,12 @@ labels are full phrases, as in the example.
   picture stays one continuous take. Check: in step 2 the clicks run 9.06-9.83s and the letters appear
   9.13-9.86s. When a face-cam and a screen recording are filmed together, always sync them this way.
 - **CTA ending added:** his clip `DJI_20261117143144_0519_D.MP4` (3840x2160, "Comment AI and I'll send you the
-  website"; whisper mishears it as "Call me on AI"). Speech 0.18-1.98s, face cropped 1080:840 at y 540-1380 on
+  website"; whisper mishears it as "Call me on AI"). Speech 0.21-1.96s; use 0.18-2.18s (to the clip end) so the last word is never clipped — he heard
+  "website" cut off when the cut was at 1.98. Face cropped 1080:840 at y 540-1380 on
   black, text `Comment "AI" and I'll / send you the website` above (y ~370-450), like the example's ending.
 - **Memory gotchas:** feed a 4K clip into the final graph only via a pre-rendered 1080x1920 segment, and render
   far-apart audio ranges of a file in their own audio-only pass. Otherwise ffmpeg buffers decoded frames
   waiting for later concat segments and the kernel kills it (it happened twice).
+- **End of a video:** always let the final word finish and keep ~0.2s of room tone after it; check the last
+  10 ms of audio in the final file, not just the planned cut. Sped-up step audio must be cut from extra source
+  (end + 0.5 s x speed) then trimmed, or `apad` fills the shortfall with digital silence (a 0.3 s dead gap).
