@@ -350,3 +350,30 @@ labels are full phrases, as in the example.
 - **End of a video:** always let the final word finish and keep ~0.2s of room tone after it; check the last
   10 ms of audio in the final file, not just the planned cut. Sped-up step audio must be cut from extra source
   (end + 0.5 s x speed) then trimmed, or `apad` fills the shortfall with digital silence (a 0.3 s dead gap).
+
+## Format: Buzzy Roblox (reuse a finished edit, swap the demo)
+
+His direction: take the hook and CTA straight out of his finished edit `Footage/Example Video/1117 (2).mp4`
+(NOT `yt shorts.mp4`), replace only the demo with the new Buzzy clips, and in the hook row change
+"YT Shorts" to the Buzzy logo ("Roblox logo + Buzzy logo = 🤑").
+
+- Script: `tools/build_buzzy_roblox.py` (set `EDIT_WORKDIR`; needs `bz/ex/ex1117.mp4`, `bz/new/*.MP4`, `bz/new.json`
+  word timings, `bz/audio1.mp3` (= background_music.mp3), `bz/riser_notion.mp3`, `bz/buzzy_logo.png`, and
+  `fonts/Montserrat-Bold.ttf` from `@fontsource/montserrat` files/montserrat-latin-700-normal.woff2).
+- 1117 example (1080x1920, 30.07s, captions and overlays burned in): hook 0-11.0 (cut at 11.0, "...$5,000
+  course." ends 10.88) | OpenArt demo 11.0-26.27 | CTA 26.267-30.07 ("So make sure to save this video and
+  comment the word AI and I'll send you my step-by-step guide.").
+- New demo clips (Nov 17, 16:12-16:20): 0531 "Go to chat, tell it to give you a scene by scene breakdown of a
+  Roblox story" | 0532 "copy everything it gives you" | 0535 "Then go to buzzy.now, come down to video
+  generator and put in the prompt chat gave you" | 0540 "It's going to vibe direct to YouTube Shorts like this".
+  Tight-cut, scaled 1728x3072 -> 1080x1920, captions 1-2 words in the example's own caption look (bold white,
+  thick 7px black outline, Montserrat Bold 66px, centre y 1295) so they match the burned-in hook/CTA captions.
+- Hook row in the example: Roblox tile x 33-275 y 135-380, "+" x 280-325, "YT Shorts" x 335-705 y 222-318,
+  "=" x 735-780, 🤑 x 805-980. "YT Shorts" is erased **per frame** with cv2.inpaint (the Roblox pop-up overlaps
+  its corner at 1.5-3.2s, so a static wall patch would paint over the pop-up), then the Buzzy logo (cropped to
+  the bug, 300x190, nearest-neighbour scaling, soft shadow) sits at centre (528, 250), clear of his hair.
+- Audio: the music under the example is background_music.mp3 at (example time + 4.333s), -10.2 dB; the Notion
+  riser.mp3 starts at 8.90 and peaks at the 11.0 cut. Under the new demo: his voice (tight cuts), the riser's
+  tail (from 2.1s into the file), and the music placed so it lines up with the CTA's music at the end (the one
+  small jump in the music sits under the riser at the hook->demo cut).
+- Section loudness matched the example within ~1 LU (hook -17.4, new demo -16.8, example demo -17.7).
