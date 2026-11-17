@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import cut_dead_space as cds
+import captions as capstyle   # the permanent caption style (see .claude/skills/captions)
 
 S = os.environ.get("EDIT_WORKDIR", os.path.abspath("work"))  # holds clips/Footage, assets/, fonts/, transcripts.json
 CLIPS = f"{S}/clips/Footage"
@@ -136,69 +137,8 @@ def display_tokens(words):
 
 
 def phrase_captions(words):
-    """Group words into reference-style captions: fill up to two lines, break at sentence ends."""
-    toks = display_tokens(words)
-    caps, cur = [], []
-
-    def fits(tokens):
-        lines, line = [], ""
-        for t, _, _ in tokens:
-            cand = (line + " " + t).strip()
-            if len(cand) <= CAP_LINE_CHARS or not line:
-                line = cand
-            else:
-                lines.append(line)
-                line = t
-        lines.append(line)
-        return len(lines) <= 2
-
-    # split into sentences, then cut each sentence into the fewest evenly sized captions that fit
-    sentences, cur = [], []
-    for tok in toks:
-        cur.append(tok)
-        if words[tok[2]]["w"].strip().endswith((".", "?", "!")):
-            sentences.append(cur)
-            cur = []
-    if cur:
-        sentences.append(cur)
-    # His rule: one line, 1-2 words per caption. Pair words within a sentence; a word stays on its
-    # own when the pair would be long (> PAIR_MAX_CHARS), and a sentence never ends on a lone word
-    # if it can be avoided by shifting the pairing.
-    # Phrase-aware pairing (dynamic programming): words like "of"/"to"/"the" lead into the next word,
-    # so a caption should not end on one, and a pair never spans a comma.
-    LEADS = {"a", "an", "the", "of", "to", "my", "your", "and", "in", "on", "at", "for", "with", "or"}
-    phrases, cur = [], []
-    for sent in sentences:
-        for tok in sent:
-            cur.append(tok)
-            if words[tok[2]]["w"].strip().endswith((",", ".", "?", "!")):
-                phrases.append(cur)
-                cur = []
-        if cur:
-            phrases.append(cur)
-            cur = []
-    for ph in phrases:
-        n = len(ph)
-        best = [0.0] + [math.inf] * n
-        how = [0] * (n + 1)
-        for i in range(1, n + 1):
-            w1 = ph[i - 1][0]
-            # single word; a lone word at the very end of a phrase costs a little extra
-            c1 = best[i - 1] + 1.5 + (3.0 if w1 in LEADS else 0.0) + (1.0 if i == n else 0.0)
-            if c1 < best[i]:
-                best[i], how[i] = c1, 1
-            if i >= 2:
-                w0 = ph[i - 2][0]
-                if len(w0) + 1 + len(w1) <= PAIR_MAX_CHARS:
-                    c2 = best[i - 2] + (3.0 if w1 in LEADS else 0.0)            # pair
-                    if c2 < best[i]:
-                        best[i], how[i] = c2, 2
-        groups, i = [], n
-        while i > 0:
-            groups.append(ph[i - how[i]: i])
-            i -= how[i]
-        caps.extend(reversed(groups))
-    return [(" ".join(t for t, _, _ in c), c[0][1], c[-1][2]) for c in caps]
+    """Captions in the permanent style (opening-caption look): see tools/captions.py."""
+    return capstyle.group_captions(words, display_tokens)
 
 
 # ---------- timeline ----------
@@ -261,33 +201,12 @@ CAP_H = 200        # caption canvas height; the text block is centred in it
 CAP_CENTER_Y = 1222  # block centre on the 1080x1920 frame (below the chin, above the cards at y=1290)
 
 
+CAP_H = capstyle.CAP_H
+CAP_CENTER_Y = capstyle.OVERLAY_Y + CAP_H // 2     # so `CAP_CENTER_Y - CAP_H // 2` is the overlay y (baseline 1325)
+
+
 def caption_png(text, path):
-    """Reference style: white semibold, thin dark outline + soft drop shadow, up to two centred lines."""
-    from PIL import ImageFilter
-    f = font(FONT_CAP, 50)
-    words, lines, line = text.split(), [], ""
-    for w_ in words:
-        cand = (line + " " + w_).strip()
-        if len(cand) <= CAP_LINE_CHARS or not line:
-            line = cand
-        else:
-            lines.append(line)
-            line = w_
-    lines.append(line)
-    lh = 58
-    ys = [CAP_H / 2 - (len(lines) - 1) * lh / 2 + k * lh for k in range(len(lines))]
-    shadow = Image.new("RGBA", (W, CAP_H), (0, 0, 0, 0))
-    sd = ImageDraw.Draw(shadow)
-    for ln, y in zip(lines, ys):
-        sd.text((W // 2, y + 3), ln, font=f, fill=(0, 0, 0, 200), stroke_width=4, stroke_fill=(0, 0, 0, 200), anchor="mm")
-    shadow = shadow.filter(ImageFilter.GaussianBlur(4))
-    img = Image.new("RGBA", (W, CAP_H), (0, 0, 0, 0))
-    img.alpha_composite(shadow)
-    d = ImageDraw.Draw(img)
-    for ln, y in zip(lines, ys):
-        d.text((W // 2, y), ln, font=f, fill=(255, 255, 255, 255), stroke_width=3,
-               stroke_fill=(20, 20, 20, 255), anchor="mm")
-    img.save(path)
+    capstyle.render(text, path)
 
 
 def top_png(path):

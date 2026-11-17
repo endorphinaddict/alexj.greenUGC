@@ -31,7 +31,7 @@ DEMO = ["0531", "0532", "0535", "0540"]   # chat -> copy -> buzzy.now video gene
 # His change: the example's "make sure to save this video..." ending is removed; two new close-up clips replace it.
 END = ["0543", "0545"]   # 0543 "Start posting these twice a day and you'll start getting payouts like this" (points up)
                          # 0545 "And if you want the prompt that I use, just comment AI and I'll send it to you."
-END_CAP_Y = 1580         # close-ups: chin/mic sit around y 1250-1450, so captions go below (saved close-up rule)
+END_CAP_Y = bai.capstyle.OVERLAY_Y_CLOSEUP + bai.CAP_H // 2   # close-ups: chin/mic sit around y 1250-1450, baseline 1610
 TAIL_AFTER_LAST_WORD = 0.25   # never clip the last word of the video
 REV_CARD = "rev_nov.png"      # "Estimated revenue $3,287.17" (the same figure already in the hook)
 
@@ -39,7 +39,7 @@ REV_CARD = "rev_nov.png"      # "Estimated revenue $3,287.17" (the same figure a
 TEXT_BOX = (330, 218, 712, 322)
 LOGO_SIZE, LOGO_CX, LOGO_CY = 300, 528, 250   # logo width (300x190); clears his hair (top ~y 355); sits between the + (x~325) and = (x~735)
 
-CAP_Y = 1295           # example's caption centre on the demo footage
+CAP_Y = bai.CAP_CENTER_Y   # caption canvas centre; baseline lands at y 1325 like the opening captions
 FONT_BOLD = f"{S}/fonts/Montserrat-Bold.ttf"
 
 
@@ -86,18 +86,14 @@ def text_removed_region():
 
 
 def caption_png(text, path):
-    """Match the example's burned-in captions: bold white, thick black outline, one line."""
-    f = ImageFont.truetype(FONT_BOLD, 66)
-    img = Image.new("RGBA", (W, 160), (0, 0, 0, 0))
-    ImageDraw.Draw(img).text((W // 2, 80), text, font=f, fill="white", stroke_width=7, stroke_fill="black", anchor="mm")
-    img.save(path)
+    bai.caption_png(text, path)      # the permanent caption style (tools/captions.py)
 
 
 def fix_words(words, cid=None):
     w = [dict(x) for x in words]
     for x in w:
         if x["w"].lower().startswith(".now"):
-            x["w"] = ".now"
+            x["w"] = ".now," if x["w"].rstrip().endswith(",") else ".now"
     if cid == "0545":       # whisper hears "just call in AI"; he says "just comment AI"
         i = next(k for k, x in enumerate(w) if x["w"].lower().startswith("call"))
         w[i]["w"] = "comment"
@@ -182,7 +178,7 @@ def main():
     rev = Image.open(f"{B}/{REV_CARD}").convert("RGB")
     rev = rev.resize((420, round(rev.height * 420 / rev.width)), Image.LANCZOS)
     rev.save(f"{OV}/rev_top.png")
-    caps.append((f"{OV}/rev_top.png", c43["wf"][k_pay], c43["f1"], 55 + 80, 30))   # y top 55, x 30 (above the fingertip)
+    caps.append((f"{OV}/rev_top.png", c43["wf"][k_pay], c43["f1"], 55 + bai.CAP_H // 2, 30))   # y top 55, x 30 (above the fingertip)
     for p, *_ in caps:
         cmd += ["-i", p]
     mi = len(clips) + len(caps)
@@ -203,7 +199,7 @@ def main():
     g.append("".join(lab) + f"concat=n={len(lab)}:v=1:a=1[base][voice]")
     prev = "base"
     for k, (p, fa, fb, cy, cx) in enumerate(caps):
-        g.append(f"[{prev}][{len(clips) + k}:v]overlay={cx}:{cy - 80}:enable='between(n,{fa},{fb - 1})'[c{k}]")
+        g.append(f"[{prev}][{len(clips) + k}:v]overlay={cx}:{cy - bai.CAP_H // 2}:enable='between(n,{fa},{fb - 1})'[c{k}]")
         prev = f"c{k}"
     g.append(f"[{mi}:a]atrim=start={music_start:.3f}:end={music_start + D + 0.5:.3f},asetpts=PTS-STARTPTS,aresample=48000,"
              f"aformat=channel_layouts=stereo,volume={MUSIC_GAIN_DB}dB,atrim=0:{D:.4f},afade=t=out:st={D - 0.8:.3f}:d=0.8[mus]")

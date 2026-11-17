@@ -2,7 +2,8 @@
 
 **The four rules he repeats most (never break them):**
 1. Cut dead space down to a fraction of a second (a few frames between clips, no pauses).
-2. Captions: CapCut "Classic" look (Montserrat SemiBold), **one line, 1-2 words** at a time.
+2. Captions: the permanent style in `.claude/skills/captions` / `tools/captions.py` (matches his 1117 opening
+   captions: Montserrat SemiBold 76 px, thick black outline, one line, 2-3 words, lowercase). Never restyle them.
 3. Never put a picture over his face; place it beside, above or below the head.
 4. If he is pointing, put the picture where he points.
 
@@ -25,24 +26,15 @@ Follow these on every edit. They come from his direct feedback.
   he is not pointing. Still never over his face.
 - Default card spots when he is not pointing: below the chin (y ~1290). Pointing up: above the
   head (y ~55).
-- Captions sit at y ~1222, below the chin.
+- Captions: baseline y 1325, below the chin (see the captions skill).
 
 ## Caption font
 
-- Use CapCut's **"Classic"** font. That is Proxima Nova Semibold (paid), so render with its free
-  look-alike **Montserrat SemiBold** (OFL): `npm pack @fontsource/montserrat`, take
-  `files/montserrat-latin-600-normal.woff2` and convert it to TTF with fontTools.
-- Caption look (matched to a reference he supplied): Montserrat SemiBold 50px, white, thin ~3px
-  near-black outline plus a soft drop shadow (blurred, offset ~3px down).
-- **One line, 1-2 words per caption** (his latest call; he tried 2-line phrase captions first).
-  Pair words by phrase: "of"/"to"/"the"/"my"... lead into the next word, so a caption should not
-  end on one; never pair across a comma or sentence end; keep pairs short (<= 18 characters).
-- All lowercase, no punctuation (keep "$5,000", "buzzy.now", "i'll").
-- Each caption appears when its first word starts and holds until the next caption.
-- The caption line is centred at y ~1222: below the chin and clear of the cards at y ~1290.
-- The top "Comment "AI" for the full guide" text uses the same font at 56px.
-- The "+" and "=" in the hook row are typed in the caption font and caption style (72px, white,
-  thin outline, soft shadow), not drawn shapes.
+**Permanent, decided by him: use the captions from the opening of `1117 (2).mp4` on every video.** The full recipe is the
+skill `.claude/skills/captions/SKILL.md`; the code is `tools/captions.py` (all build scripts use it). Summary: one
+line, white, 6 px black outline, Montserrat SemiBold 76 px (CapCut "Classic" stand-in), lowercase, no punctuation,
+2-3 words, baseline y 1325 (y 1610 on low close-ups). Older caption rules (50 px with shadow, 1-2 words, Bold 66 px)
+are obsolete. The top "Comment "AI"..." text still uses SemiBold at 56 px.
 
 ## Assets that must appear
 
@@ -366,8 +358,7 @@ His direction: take the hook and CTA straight out of his finished edit `Footage/
 - New demo clips (Nov 17, 16:12-16:20): 0531 "Go to chat, tell it to give you a scene by scene breakdown of a
   Roblox story" | 0532 "copy everything it gives you" | 0535 "Then go to buzzy.now, come down to video
   generator and put in the prompt chat gave you" | 0540 "It's going to vibe direct to YouTube Shorts like this".
-  Tight-cut, scaled 1728x3072 -> 1080x1920, captions 1-2 words in the example's own caption look (bold white,
-  thick 7px black outline, Montserrat Bold 66px, centre y 1295) so they match the burned-in hook/CTA captions.
+  Tight-cut, scaled 1728x3072 -> 1080x1920, captions in the permanent style (tools/captions.py), which matches the burned-in hook captions.
 - Hook row in the example: Roblox tile x 33-275 y 135-380, "+" x 280-325, "YT Shorts" x 335-705 y 222-318,
   "=" x 735-780, 🤑 x 805-980. "YT Shorts" is erased **per frame** with cv2.inpaint (the Roblox pop-up overlaps
   its corner at 1.5-3.2s, so a static wall patch would paint over the pop-up), then the Buzzy logo (cropped to
@@ -385,3 +376,8 @@ His direction: take the hook and CTA straight out of his finished edit `Footage/
   "Your estimated revenue $7,165.77") sits at the top, 420px wide at x 30, y 55, above his head and left of his
   raised finger, from the word "payouts" to the end of that clip. Captions on these two close-ups sit at y 1580.
   The last clip ends 0.25 s after the last word; the music continues from the demo and fades out over the last 0.8 s.
+- **Captions made permanent (his feedback):** demo and ending captions had been 66 px Bold, visibly smaller than the
+  opening's. They now use `tools/captions.py` (measured widths of the opening captions: "you've probably" 651 px,
+  "seen videos" 471, "millions" 293, "dollars" 260 -> best fit Montserrat SemiBold ~76 px, 6 px outline). The grouping
+  was tightened to the opening's 2-3 word rhythm; `build_ai_influencer.caption_png/phrase_captions` now delegate to it,
+  so the AI Influencer and GTA builds use it too. Keep the comma in patched tokens (".now,") or captions run across it.
