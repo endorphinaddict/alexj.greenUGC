@@ -322,7 +322,8 @@ labels are full phrases, as in the example.
   and sending the search) | 3: 32.5-38.5 x1.5 (the list of businesses, picking one) | 4: 93.3-95.2 x1 (clean
   landing on the foundable.com home page; the first visit at 48.7 has the prompt pasted almost at once) |
   5: 49.6-51.8 x1 (empty box, paste at 49.9, prompt shown until 51.85) | 6: 61.8-88.0 x7 (the build) |
-  7: 107.5-118.5 x2 (the finished pet-grooming website scrolling).
+  7: 107.5-115.3 x2 (the finished pet-grooming website scrolling; he asked for it shorter, so it ends as the
+  scroll stops at 115.05 — after that the page sits still).
 - Each step crop is a 1080:780 window on the 1920x1074 recording, centred on the action; the step 6 crop
   keeps the dashboard's "Revenue $0.00" out of frame (it would contradict "passive income achieved").
   The ChatGPT crops also keep his name in the sidebar out of frame.

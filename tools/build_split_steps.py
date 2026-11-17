@@ -34,7 +34,7 @@ STEPS = [
     (["Step 4: go to foundable.com"],                          93.3, 95.2, 1.0, 310, 70, 1300),   # clean landing on the home page
     (["Step 5: paste your prompt"],                            49.6, 51.8, 1.0, 310, 70, 1300),   # paste at 49.9s, prompt shown until the page leaves at 51.85s
     (["Step 6: let it cook"],                                  61.8, 88.0, 7.0, 605, 20, 1315),   # crop keeps "$0.00" out
-    (["Step 7: passive income achieved"],                     107.5, 118.5, 2.0, 650, 75, 1270),
+    (["Step 7: passive income achieved"],                     107.5, 115.3, 2.0, 650, 75, 1270),  # ends as the scroll stops (115.05); the rest is a still page
 ]
 TOP_CAM_START = 26.0                     # continuous face-cam take for the top half (ns2)
 TOP_CROP = (312, 0, 1296, 1080)          # -> 1080x900
