@@ -233,12 +233,19 @@ Assets still needed from him: the GTA 6 image, the $500 / $3,500 / $15,000 cards
   scaled to 300px wide.
 - Takes used: 0478 (of 0476/0477/0478) and 0493 (of 0490/0493). Fixes: whisper wrote "openr .ai -direct"
   for openart.ai/direct and "boasting" for "posting" in the final clip; patched in `fix_words`.
-- Placement from the head-zone check: in the hook clips his head is x ~80-560, hair top y ~500, so the
-  payout cards go to the RIGHT of his head (x 700, stacked from y 520) where he points up, one per
-  phrase ("every day / week / month"), all gone at the cut; hook row at y ~90-240; earnings card on
+- Placement from the head-zone check: in the hook clips his head is x ~80-560, hair top y ~500. The three
+  payout cards go **exactly above his fingertip** at each phrase ("every day / week / month"), centred
+  on the fingertip with ~25px clearance, all gone at the cut. Measured fingertips (1080x1920): day
+  (904, 715), week (895, 1065), month (840, 1320). Always measure the fingertip on frames at each
+  phrase; never use fixed spots when he is pointing; hook row at y ~90-240; earnings card on
   "payouts" above his head (x 330, y 55, 420px wide); `Comment "ai" for the full prompt` at the top over
   the last clip. In the close-up end clips (0495, 0497) his face and chin are low, so captions sit at
   y 1580 instead of 1222.
 - Audio reused from the AI Influencer setup (he did not specify): music from 4.45s, metallic riser ending
   on the cut into the screen section.
 - Check: re-transcribe the final mix and confirm the whole script is still there (it was).
+- **Cutter fix (his feedback: dead space after "...YouTube automation"):** a short blip (mouth click, breath,
+  tap, under 80 ms and 80+ ms away from the speech) at the start or end of a speech group is NOT speech.
+  `tight_keeps` now drops such blips; before, a 30 ms click 0.12 s after the last word merged into the
+  group and left ~0.15 s of silence. Check the tail of every clip: the cut should land ~0.05 s after the
+  voice stops, not after the last click.

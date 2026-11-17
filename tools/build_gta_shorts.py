@@ -148,14 +148,18 @@ def main():
     hook_row_png(f"{OV}/hook_row.png")
     layers.append((f"{OV}/hook_row.png", 0, 90, 0, by[HOOK_CLIPS[-1]]["f1"]))
 
-    # payout cards: one per phrase of "every day, every week, every month", to the right of his head
-    # where he points (head is x ~80-560 in this clip); they stay until the cut.
+    # payout cards: one per phrase of "every day, every week, every month". Each card sits exactly ABOVE
+    # his fingertip at that moment (he points up and the finger moves down the right side), centred on the
+    # fingertip with ~25px clearance. Fingertip (x, y) measured at each phrase: day (904, 715),
+    # week (895, 1065), month (840, 1320). Head is x ~80-560, so the cards never touch his face.
     c0 = by["0453"]
-    y = 520
-    for k, (tok, name) in enumerate(((0, "card1"), (2, "card2"), (4, "card3"))):
+    tips = {"card1": (904, 715), "card2": (895, 1065), "card3": (840, 1320)}
+    for tok, name in ((0, "card1"), (2, "card2"), (4, "card3")):
         h = card(f"{AG}/{name}.png", f"{OV}/{name}.png")
-        layers.append((f"{OV}/{name}.png", 700, y, c0["wf"][tok], c0["f1"]))
-        y += h + 18
+        tx, ty = tips[name]
+        # centred on the fingertip; card3 is nudged 20px right so it does not touch the "every month" caption
+        shift = 20 if name == "card3" else 0
+        layers.append((f"{OV}/{name}.png", min(W - 300 - 10, tx - 150 + shift), ty - 25 - h, c0["wf"][tok], c0["f1"]))
 
     # earnings card above his head on "payouts like this"
     c = by["0495"]

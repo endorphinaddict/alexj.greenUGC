@@ -73,12 +73,22 @@ def tight_keeps(audio, dur, fps):
             i = j
         else:
             i += 1
-    merged = []
-    for r in runs:                                   # natural word gaps (< MAX_GAP) stay joined
-        if merged and (r[0] - merged[-1][1]) / 100 < MAX_GAP:
-            merged[-1][1] = r[1]
+    groups = []                                      # natural word gaps (< MAX_GAP) stay joined
+    for r in runs:
+        if groups and (r[0] - groups[-1][-1][1]) / 100 < MAX_GAP:
+            groups[-1].append(r)
         else:
-            merged.append(r)
+            groups.append([r])
+    merged = []
+    for g in groups:
+        # A short blip (mouth click, breath, tap) hanging off either end of a group is not speech:
+        # drop it when it is < 80 ms long and sits >= 80 ms away from the next run. This is what
+        # used to leave ~0.15 s of dead air after a last word.
+        while len(g) > 1 and (g[-1][1] - g[-1][0]) < 8 and (g[-1][0] - g[-2][1]) >= 8:
+            g.pop()
+        while len(g) > 1 and (g[0][1] - g[0][0]) < 8 and (g[1][0] - g[0][1]) >= 8:
+            g.pop(0)
+        merged.append([g[0][0], g[-1][1]])
     merged = [r for r in merged if (r[1] - r[0]) >= 6]   # drop blips under 60 ms
     soft = db > level - TAIL_DB
     keeps = []
