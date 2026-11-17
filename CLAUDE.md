@@ -303,3 +303,32 @@ mentioned a timer overlay with blend mode Screen; ask before adding one).
 Rules that carry over: tight cuts, nothing over his face (the layout keeps text/screens in their own
 zones), verify any revenue numbers are real. The 1-2-word caption rule does NOT apply here: step
 labels are full phrases, as in the example.
+
+### Built once already (Foundable "passive income business" campaign, split-screen steps)
+
+- Script: `tools/build_split_steps.py` (set `EDIT_WORKDIR`; needs `fd/in/ns1.mp4` screen recording,
+  `fd/in/ns2.mp4` face-cam for the top half, `fd/in/ns3.mp4` hook, `assets/loudly_crying.png` (😭, Apple PNG
+  1f62d from `emoji-datasource-apple`), and the font). One pass, ~30s output.
+- His footage: `Footage/new save.mp4` = 2-min desktop screen recording (1920x1074, silent);
+  `Footage/new save 2.mp4` = 106s face-cam of him sitting (room sound with clicks/typing);
+  `Footage/new save 3.mp4` = 13s hook. Use video stream `0:v:0` (the files carry an extra cover-image stream).
+- Title: "Making a passive income business / in less than 40 seconds 😭" (his wording, emoji kept).
+- Hook cuts, his direction: sitting down (1.00-2.25s) -> cracking open the drink (2.45-3.60, crack at 2.85)
+  -> countdown "mmm" x3 with fingers (5.60-9.03) ending right after the finger snap at the camera (8.94s).
+- Steps (labels exactly): "Step 1: go to chatgpt" | "Step 2: search unsaturated / businesses in your area"
+  | "Step 3: pick one you like" | "Step 4: go to foundable.com" (his spelling of the site) | "Step 5: paste
+  your prompt" | "Step 6: let it cook" | "Step 7: passive income achieved". No step skipped.
+- Screen-recording windows (src s, speed): 1: 12.6-16.6 x1.25 (Google -> ChatGPT) | 2: 17.2-28.0 x3 (typing
+  and sending the search) | 3: 32.5-38.5 x1.5 (the list of businesses, picking one) | 4: 93.3-95.2 x1 (clean
+  landing on the foundable.com home page; the first visit at 48.7 has the prompt pasted almost at once) |
+  5: 49.6-51.8 x1 (empty box, paste at 49.9, prompt shown until 51.85) | 6: 61.8-88.0 x7 (the build) |
+  7: 107.5-118.5 x2 (the finished pet-grooming website scrolling).
+- Each step crop is a 1080:780 window on the 1920x1074 recording, centred on the action; the step 6 crop
+  keeps the dashboard's "Revenue $0.00" out of frame (it would contradict "passive income achieved").
+  The ChatGPT crops also keep his name in the sidebar out of frame.
+- Top half: one continuous take from `new save 2.mp4` starting at 26s, cropped to 1080x900; its room
+  sound (+6 dB) runs under the steps, as in the example (no music).
+- No ending: he adds his own CTA.
+- **Audio gotcha:** ffmpeg's `alimiter` normalises its output UP to the limit by default (`level=enabled`).
+  Use `alimiter=limit=0.7:level=disabled` to actually cap transients; with the default, the true peak came
+  out above 0 dBFS.
