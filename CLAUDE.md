@@ -158,3 +158,21 @@ looking at the frames (there is no speech to transcribe), and tell him if a step
 (3-5 word steps, two-line labels where the reference has two lines). The "1-2 words per caption" rule
 is only for talking videos; it does not apply to this no-talking format. Match timing, positions,
 text style and structure to the reference as closely as possible.
+
+### Built once already (Claude YouTube no-talking, Nov 17 footage)
+
+- Script: `tools/build_claude_youtube.py` (set `EDIT_WORKDIR`; needs `cyt/` clips, `assets/`
+  claude_shorts_hook.png, emoji.png (money-mouth), fire.png, moneybag.png, song12.mp3, and the font).
+  Run `python3 tools/build_claude_youtube.py OUT.mp4`; it renders in one pass (frame-accurate overlays).
+- Clip -> step mapping used (identified from the frames, no speech): 0427 hook (face-cam, hands to
+  head), 0430 Claude, 0434 prompt, 0435 script output, 0440 openart.ai/direct, 0443 Quick Starts
+  (pointing at Explainer), 0444 Explainer form, 0445 generated video, 0446 results screen.
+- Each segment uses the reference's exact frame count (70,31,43,37,42,50,35,36,25 = 369 frames = 12.3s);
+  pick the moment inside each clip where he is pointing at the thing the label names.
+- `Claude-Shorts-hook.png` has faint stray pixels, so crop it to x 338-1799, y 124-602 (the tiles and
+  plus), not to the alpha bounding box. Scale to ~702px wide at x 189, y ~150.
+- Title "= $453/day 🤑" sits at y ~470 (just above his hair), not at the reference's y ~530.
+- Emoji: Apple-style PNGs from `npm pack emoji-datasource-apple` (img/apple/64/1f525.png fire,
+  1f4b0.png money bag); money-mouth is his Drive `money-mouth-face_1f911.png`.
+- The reference hook has her pulling glasses down; he wears none, so the hook is his shocked reaction.
+- Before sending: confirm the revenue on the results screen is his own real figure.
