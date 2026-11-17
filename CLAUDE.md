@@ -24,8 +24,21 @@ Follow these on every edit. They come from his direct feedback.
 
 ## Cutting
 
-- Cut all dead space (no stretch where he is not talking). Use `tools/cut_dead_space.py`.
+- **Absolutely no dead space.** The moment he finishes talking, cut to the next clip. A join between
+  clips should carry no more than ~0.1s of quiet in total (a few frames), and any pause longer than
+  0.15s inside a clip is cut out.
+- Find edges from his voice level, not from a fixed pad: "talking" is within ~15 dB of his median
+  speech level, edges may extend through softer word tails (down to ~20 dB below) by at most 0.04s,
+  plus a 0.01-0.02s pad. `tools/cut_dead_space.py` is the looser first version of this.
+- After cutting, re-transcribe the cut voice track and confirm every word of the script is still
+  there, so no word endings were clipped.
 - Run it on raw footage before captions and overlays go on.
+
+## Music
+
+- Open the video on the music's high point, not its intro. For `background_music.mp3` that is
+  4.45s into the track (the build peaks at ~4.5s); trim the track to start there with only a
+  de-click fade, so it hits within the first fraction of a second.
 
 ## Workflow
 
