@@ -254,3 +254,7 @@ Assets still needed from him: the GTA 6 image, the $500 / $3,500 / $15,000 cards
   fingertip at their phrase, the middle one halfway between), still never over his face. The raw crops
   differ (card1 has no small "500x7" line, so it is shorter): pad card1's top with black and trim card3's
   last rows so all are 247x133 before scaling.
+- **Even tighter on "...YouTube automation":** he asked for the cut a fraction of a second sooner, right after the
+  last word. The clip (0458) now ends at 2.75s of the source (his voice is at -34 dB there and silent by
+  2.78s) via `END_OVERRIDE` in `build_gta_shorts.py`; the default tight cut left ~0.05s more. When he says
+  "cut it right after I finish", end the clip where the voice falls to about -35 dB, not at the pad.

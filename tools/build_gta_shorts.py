@@ -26,6 +26,9 @@ HOOK_CLIPS = ORDER[:4]          # talking hook: hook row at the top
 SCREEN_FIRST = "0478"           # riser lands on the cut into this clip
 CAPTION_Y = {"0495": 1580, "0497": 1580}   # close-ups: face (and chin) sit lower, so keep captions below it
 CAPTION_Y_DEFAULT = 1222
+# His feedback: cut the "...YouTube automation" clip right after the last word. His voice falls to -34 dB at
+# 2.75s and to silence by 2.78s, so end the clip at 2.75s (the default cut left ~0.05s more).
+END_OVERRIDE = {"0458": 2.75}
 
 
 def clip_path(cid):
@@ -52,6 +55,9 @@ def build_plan():
         dur, fps, _ = bai.cds.probe(path)
         audio = bai.cds.load_audio(path)
         keeps, level = bai.tight_keeps(audio, dur, fps)
+        if cid in END_OVERRIDE:
+            ks_, ke_ = keeps[-1]
+            keeps[-1] = (ks_, min(ke_, math.ceil(END_OVERRIDE[cid] * fps) / fps))
         sl = np.concatenate([audio[int(s * 16000): int(e * 16000)] for s, e in keeps])
         rms = 20 * math.log10(float(np.sqrt((sl ** 2).mean())) + 1e-9)
         gain = max(-12.0, min(12.0, bai.VOICE_RMS_TARGET - rms))
