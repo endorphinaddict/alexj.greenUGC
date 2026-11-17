@@ -29,6 +29,9 @@ Follow these on every edit. They come from his direct feedback.
   top of the screen there, so put it at the top, above his head).
 - Views picture on "millions of views".
 - Riser sound effect leading into the screen section; background music kept low under his voice.
+  Use his **metallic high riser** (`metallic_high_riser.mp4`, not the Notion `riser_sfx.mp3`). Its
+  sound runs 1.2-3.0s into the file and stops dead at 3.0s: place it so that stop lands exactly on
+  the cut into the screen section.
 
 ## Cutting
 
