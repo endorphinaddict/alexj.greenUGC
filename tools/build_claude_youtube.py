@@ -27,7 +27,9 @@ SEGMENTS = [
     ("0443", 1.57, 50, ["Go to Quick Start", "> Explainer"], 727),    # pointing at Explainer at the end
     ("0444", 0.30, 35, ["Paste script"], 606),
     ("0445", 3.60, 36, ["RESULTS"], 550),                              # + fire emoji, over the generated video
-    ("0446", 0.50, 25, ["post everyday and", "get payouts like these"], 477),  # + money bag emoji
+    # + money bag emoji. His request: hold the final results clip 1s longer than the reference (25 -> 55 frames).
+    # Start early enough that his stylus (which crosses the number near 2.25s) stays clear for the whole hold.
+    ("0446", 0.34, 55, ["post everyday and", "get payouts like these"], 477),
 ]
 LINE_GAP = 76
 HOOK_TITLE_Y = 470        # centre of the title line; the hook graphic sits above it
@@ -98,7 +100,7 @@ def main():
         cmd += ["-i", find_clip(cid)]
     for it in items:
         cmd += ["-i", it[0]]
-    cmd += ["-i", f"{A}/song12.mp3"]
+    cmd += ["-i", f"{A}/song12.mp3", "-i", f"{A}/song12.mp3"]
     parts, lab = [], []
     for i, (cid, st, n, *_r) in enumerate(SEGMENTS):
         parts.append(f"[{i}:v]trim=start={st:.4f}:end={st + (n + 2) / FPS:.4f},setpts=PTS-STARTPTS,fps={FPS},"
@@ -112,8 +114,13 @@ def main():
         parts.append(f"[{prev}][{base_idx + k}:v]overlay={x}:{y}:enable='between(n,{a},{b - 1})'[{nxt}]")
         prev = nxt
     song_i = base_idx + len(items)
-    parts.append(f"[{song_i}:a]atrim=0:{total:.3f},asetpts=PTS-STARTPTS,aformat=channel_layouts=stereo,"
-                 f"aresample=48000,afade=t=out:st={total - 0.4:.3f}:d=0.4,alimiter=limit=0.97[aout]")
+    # The song is 12.2s. If the video runs longer, loop its start in with a short crossfade, then fade out.
+    # (the song is added twice as separate inputs; asplit into acrossfade truncated the output)
+    parts.append(f"[{song_i}:a]aformat=channel_layouts=stereo,aresample=48000[sa]")
+    parts.append(f"[{song_i + 1}:a]aformat=channel_layouts=stereo,aresample=48000,atrim=0:3,asetpts=PTS-STARTPTS[sb2]")
+    parts.append("[sa][sb2]acrossfade=d=0.3:c1=tri:c2=tri[sx]")
+    parts.append(f"[sx]atrim=0:{total:.3f},asetpts=PTS-STARTPTS,"
+                 f"afade=t=out:st={total - 0.4:.3f}:d=0.4,alimiter=limit=0.97[aout]")
     cmd += ["-filter_complex", ";".join(parts), "-map", f"[{prev}]", "-map", "[aout]", "-t", f"{total:.3f}",
             "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-r", str(FPS),
             "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out]

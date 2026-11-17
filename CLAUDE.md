@@ -176,3 +176,9 @@ text style and structure to the reference as closely as possible.
   1f4b0.png money bag); money-mouth is his Drive `money-mouth-face_1f911.png`.
 - The reference hook has her pulling glasses down; he wears none, so the hook is his shocked reaction.
 - Before sending: confirm the revenue on the results screen is his own real figure.
+- **His change after seeing it:** hold the final results clip (revenue screen + CTA text) **1 second
+  longer than the reference** (25 -> 55 frames, total 399 frames = 13.3s). Everything else stays 1:1.
+  The song is only 12.2s, so its start is looped in with a 0.3s crossfade under the extra second, then
+  fades out over the last 0.4s. (Add the song as two separate ffmpeg inputs; `asplit` into
+  `acrossfade` silently truncated the audio to 2.7s.) Start the results clip at ~0.34s so the stylus
+  stays off the revenue number for the whole hold.
