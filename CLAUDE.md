@@ -1,5 +1,11 @@
 # Video editing rules for this repo
 
+**The four rules he repeats most (never break them):**
+1. Cut dead space down to a fraction of a second (a few frames between clips, no pauses).
+2. Captions: CapCut "Classic" look (Montserrat SemiBold), **one line, 1-2 words** at a time.
+3. Never put a picture over his face; place it beside, above or below the head.
+4. If he is pointing, put the picture where he points.
+
 Alexander's UGC videos are edited by Claude from raw clips, a Notion brief and a reference video.
 Follow these on every edit. They come from his direct feedback.
 
@@ -13,8 +19,12 @@ Follow these on every edit. They come from his direct feedback.
 - Pop-ups with a 9:16 shape (e.g. the dance clip) go to the side of the head, 320px wide. In the hook
   clip he holds the pen up at x ~690-735, y ~740-1000: place the AI influencer clip **on top of the
   pen, covering it** (top-left at x=660, y=440), which still leaves ~90px clear of his face.
-- Cards (views, earnings) go below the chin (y ~1290) or, when he points to the top of the screen,
-  above the head (y ~55).
+- **Match each picture to where he is pointing, whenever he is pointing.** Look at the frames while
+  he speaks the line: if he points to the top of the screen, the picture goes at the top (above his
+  head); if he points to the side, it goes at that side. Only fall back to the default spots when
+  he is not pointing. Still never over his face.
+- Default card spots when he is not pointing: below the chin (y ~1290). Pointing up: above the
+  head (y ~55).
 - Captions sit at y ~1222, below the chin.
 
 ## Caption font
@@ -76,3 +86,28 @@ Follow these on every edit. They come from his direct feedback.
 - The Google Drive connector cannot download files over 10MB; Notion file links have no such limit.
 - Follow the reference video's structure one-to-one: hook row, talking, screen section, talking,
   call-to-action text. Confirm the clip order from the transcript, not the file names.
+
+## How to rebuild the edit (the saved skill)
+
+Scripts live in `tools/`: `cut_dead_space.py` (first-pass cutter), `transcribe_clips.py`
+(faster-whisper word timings), `build_ai_influencer.py` (full build: tight cuts, hook row, pop-ups,
+cards, captions, music, riser). Steps for a new video:
+
+1. Fetch the `footage` branch; extract the clips. Set `EDIT_WORKDIR` to a working folder holding
+   `clips/Footage/`, `assets/` (face.png, emoji.png, views.jpg, earnings.jpg, dance.mp4,
+   music.mp3, riser_metallic.mp4), `fonts/Montserrat-SemiBold.ttf`.
+2. `python3 tools/transcribe_clips.py $EDIT_WORKDIR/clips/Footage $EDIT_WORKDIR/transcripts.json`
+3. Confirm clip order from the transcripts; edit `ORDER` (clip name + caption token counts) and the
+   named picks in `stage_b` (which clip has "millions of views", "payouts like this", etc.).
+4. `python3 tools/build_ai_influencer.py OUT OUT/video.mp4 --stage A` (tight cut), then `--stage B`
+   (overlays + audio). Check frames at every cut and every pop-up edge before sending.
+5. Re-transcribe the cut voice track to confirm no words were clipped.
+
+Gotchas learned the hard way:
+- Overlay `enable` times can be off by a frame in the final render. For a pop-up that must end on a
+  cut, bake it into that clip before the clips are joined (stage A does this for the hook clip).
+- Use half-open intervals and a half-frame shift for overlays that end at cuts.
+- Whisper's first-word timestamps are unreliable; measure speech onset from the audio itself.
+- No face detector model is available offline: mark the head zone by eye on a gridded frame.
+- The Instagram logo is drawn in code (no asset supplied); swap in the real PNG if he has it.
+- Edited videos only live in the chat unless saved; remind him to download them.
