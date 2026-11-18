@@ -24,6 +24,8 @@ script (`build_ai_influencer.py`, `build_gta_shorts.py`, `build_buzzy_roblox.py`
 - Cards and pictures placed "below the chin" must end **above y ~1420** so they never sit under the caption line.
 - Captions already burned into reused footage (the 1117 hook) cannot be moved: erasing them by inpainting left visible
   smudges on his shirt/neck. Ask him for a caption-free export of that footage instead.
+- Captions burned into one of OUR builds that he sends back (e.g. `1118.mp4`) CAN be moved: rebuild the picture from the
+  raw clips with `tools/recaption_from_raw.py` (same words and frames, new baseline). See CLAUDE.md, "Moving captions".
 
 ## Wording and timing
 - **2-3 words per caption** (the opening: "you've probably / seen videos / like this / actually getting / millions /

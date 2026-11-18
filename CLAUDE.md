@@ -437,3 +437,19 @@ His direction: keep his original no-talking video (clips, labels, music) and put
   window fits (0435 starts 0.35 s, 0440 0.30 s, 0443 1.20 s, 0446 0.0 s so the stylus stays off the revenue number).
 - Labels were left as in his original ("Copy this prompt", "Paste script", "RESULTS"), although the voice says "enter this prompt",
   "paste in your prompt", "post the video"; ask him if he wants the labels to follow the voice.
+
+## Moving captions on a finished edit he sends back (`Footage/1118.mp4`, Nov 18)
+
+He pushed `1118.mp4` (1080x1920, 60fps, 12.07s): the Buzzy Roblox demo section of our earlier build (raw clips 0531, 0532,
+0535, 0540; 30fps content doubled to 60fps by his export), with our captions burned in at the old 1117 height (baseline
+1325). His ask: "move them down a little bit to the bottom portion of the screen, not all the way down, a little above the
+bottom" = the permanent position, **baseline y 1500**.
+- Do not inpaint burned-in captions. Rebuild the picture caption-free from the raw clips and draw the same captions lower:
+  `tools/recaption_from_raw.py EDIT.mp4 RAW_DIR TEXTS.json OUT.mp4 [--baseline 1500]` (TEXTS.json = the captions read off
+  its frames, in order). It matches every frame to its raw frame (error < 1 on 72x128 thumbnails), finds each caption's
+  exact frames by compositing candidates, composites in YUV (no colour shift) and copies his audio unchanged.
+- Raw clips deleted from the `footage` branch are still in its history: `git ls-tree --name-only "<commit>^" Footage/`,
+  then `git show "<commit>^:Footage/<file>"` (0531-0545 come from `2440c39^`).
+- The text at the very top of some frames ("it gives you", the pink "style" pill) is his second monitor filmed in the raw
+  footage, not an overlay: leave it.
+- In the last caption ("shorts like this") the generated Roblox video's own subtitle "then" sits just under the caption.
