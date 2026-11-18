@@ -17,9 +17,13 @@ script (`build_ai_influencer.py`, `build_gta_shorts.py`, `build_buzzy_roblox.py`
   `npm pack @fontsource/lato`, take `files/lato-latin-700-normal.woff2`, convert to TTF with fontTools, save as
   `$EDIT_WORKDIR/fonts/Lato-Bold.ttf` (or set `CAPTION_FONT`).
 - **All lowercase, no punctuation**, numbers spelled out ("a five thousand dollar course"). Keep `buzzy.now`, `i'll`.
-- Centred horizontally. **Text baseline at y = 1325** on the 1080x1920 frame (just under the chin). On close-up clips
-  where his face/chin/mic sit low (y ~1250-1450), the baseline is **1610**. Overlay the 1080x200 caption PNG at
-  `OVERLAY_Y` (1195) or `OVERLAY_Y_CLOSEUP` (1480).
+- Centred horizontally. **Position (his rule, permanent): the bottom quarter of the screen, text baseline at y = 1500**
+  on the 1080x1920 frame (lower than the 1117 opening's 1325; he asked for "just down a little bit more"). On close-up
+  clips where his chin/mic sit low, the baseline is **1640**. Overlay the 1080x200 caption PNG at `OVERLAY_Y` (1370)
+  or `OVERLAY_Y_CLOSEUP` (1510).
+- Cards and pictures placed "below the chin" must end **above y ~1420** so they never sit under the caption line.
+- Captions already burned into reused footage (the 1117 hook) cannot be moved: erasing them by inpainting left visible
+  smudges on his shirt/neck. Ask him for a caption-free export of that footage instead.
 
 ## Wording and timing
 - **2-3 words per caption** (the opening: "you've probably / seen videos / like this / actually getting / millions /

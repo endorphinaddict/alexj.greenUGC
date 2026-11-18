@@ -8,7 +8,7 @@ Measured off the opening captions of his finished edit `Footage/Example Video/11
   - all lowercase, no punctuation, numbers spelled out ("a five thousand dollar course")
   - 1-3 words per caption (4 only when they are all short, e.g. "let me show you"), never wider than ~860 px
   - a caption appears on its first word and holds until the next caption starts
-  - text baseline at y = 1325 on a 1080x1920 frame (below the chin); close-up clips use 1610
+  - POSITION (his later rule): bottom quarter of the screen, text baseline y = 1500 on 1080x1920 (close-ups 1640)
 See .claude/skills/captions/SKILL.md for the full recipe and checks.
 """
 import math
@@ -22,8 +22,8 @@ FONT_SIZE = 92
 STROKE = 4
 MAX_WIDTH = 860        # px, keeps a caption well inside the frame
 MAX_WORDS = 4
-BASELINE_Y = 1325      # where the baseline lands on the frame for normal footage
-BASELINE_Y_CLOSEUP = 1610   # when his face/chin/mic sit low (close-ups)
+BASELINE_Y = 1500      # his rule: captions in the bottom quarter of the screen (was 1325, the 1117 opening height)
+BASELINE_Y_CLOSEUP = 1640   # when his face/chin/mic sit low (close-ups); also moved down a little
 OVERLAY_Y = BASELINE_Y - BASELINE            # y to overlay a caption canvas at
 OVERLAY_Y_CLOSEUP = BASELINE_Y_CLOSEUP - BASELINE
 

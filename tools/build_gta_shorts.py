@@ -24,8 +24,8 @@ os.makedirs(OV, exist_ok=True)
 ORDER = ["0453", "0458", "0469", "0471", "0478", "0481", "0483", "0485", "0486", "0489", "0493", "0495", "0497"]
 HOOK_CLIPS = ORDER[:4]          # talking hook: hook row at the top
 SCREEN_FIRST = "0478"           # riser lands on the cut into this clip
-CAPTION_Y = {"0495": 1580, "0497": 1580}   # close-ups: face (and chin) sit lower, so keep captions below it
-CAPTION_Y_DEFAULT = 1222
+CAPTION_Y = {"0495": bai.capstyle.OVERLAY_Y_CLOSEUP + bai.CAP_H // 2, "0497": bai.capstyle.OVERLAY_Y_CLOSEUP + bai.CAP_H // 2}   # close-ups: face (and chin) sit lower, so keep captions below it
+CAPTION_Y_DEFAULT = bai.CAP_CENTER_Y   # caption canvas centre from tools/captions.py
 # His feedback: cut the "...YouTube automation" clip right after the last word. His voice falls to -34 dB at
 # 2.75s and to silence by 2.78s, so end the clip at 2.75s (the default cut left ~0.05s more).
 END_OVERRIDE = {"0458": 2.75}

@@ -24,16 +24,17 @@ Follow these on every edit. They come from his direct feedback.
   he speaks the line: if he points to the top of the screen, the picture goes at the top (above his
   head); if he points to the side, it goes at that side. Only fall back to the default spots when
   he is not pointing. Still never over his face.
-- Default card spots when he is not pointing: below the chin (y ~1290). Pointing up: above the
+- Default card spots when he is not pointing: below the chin (y ~1290, ending above y 1420 to clear the captions). Pointing up: above the
   head (y ~55).
-- Captions: baseline y 1325, below the chin (see the captions skill).
+- **Captions (permanent, his rule): bottom quarter of the screen, baseline y 1500 (close-ups 1640).** Cards placed
+  below the chin must end above y ~1420 so they never sit under a caption.
 
 ## Caption font
 
 **Permanent, decided by him: use the captions from the opening of `1117 (2).mp4` on every video.** The full recipe is the
 skill `.claude/skills/captions/SKILL.md`; the code is `tools/captions.py` (all build scripts use it). Summary: one
 line, white, 4 px black outline, **Lato Bold 92 px** (measured best match to the opening; Montserrat was visibly
-off), lowercase, no punctuation, 2-3 words, baseline y 1325 (y 1610 on low close-ups). Older caption rules
+off), lowercase, no punctuation, 2-3 words, **baseline y 1500, the bottom quarter of the screen (y 1640 on low close-ups)**. Older caption rules
 (Montserrat at 50/66/76 px, shadows, 1-2 words) are obsolete. The top "Comment "AI"..." text still uses SemiBold at 56 px.
 
 ## Assets that must appear
