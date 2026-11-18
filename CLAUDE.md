@@ -437,3 +437,15 @@ His direction: keep his original no-talking video (clips, labels, music) and put
   window fits (0435 starts 0.35 s, 0440 0.30 s, 0443 1.20 s, 0446 0.0 s so the stylus stays off the revenue number).
 - Labels were left as in his original ("Copy this prompt", "Paste script", "RESULTS"), although the voice says "enter this prompt",
   "paste in your prompt", "post the video"; ask him if he wants the labels to follow the voice.
+
+## Format: Buzzy Roblox Shorts, second build (Nov 18 footage, Notion "Roblox Shorts" with Inspiration `example-vid.mp4`)
+
+- Script: `tools/build_roblox_buzzy_v2.py`. Clips: hook DJI 0594/0604/0608 (Nov 18), demo = the four Buzzy clips 0531/0532/0535/0540
+  (his `1118.mp4` is the same demo with captions burned in, so the raw clips are used and captioned in the permanent style;
+  `1118_captions_lower.mp4` shows the lowered caption position = baseline ~1500), ending 0610 ("...payouts like this") + 0609 ("comment buzz").
+- Hook row: his `Example Video/roblox2.jfif` (black Roblox logo, rounded tile) + Buzzy bee = money bag PNG (`Glossy Golden Money Bag Emoji.png`,
+  not the face emoji), row centre y 270, "+" and "=" in the caption font.
+- Top caption on every frame (Montserrat SemiBold 56, y ~62, above the hook row and the revenue card): "ROBLOX SHORTS WITH BUZZY" (wording was my
+  placeholder; he gave none); from the word "comment" in 0609 it becomes "COMMENT BUZZY", bottom captions keep running.
+- Revenue card $7,165.77 for the whole 0610 clip (permanent rule). 34.03 s total. Not used from the Inspiration: the Roblox story pop-up and the
+  9M views picture (the new script has no matching lines).
