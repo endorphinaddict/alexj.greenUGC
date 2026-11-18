@@ -381,3 +381,7 @@ His direction: take the hook and CTA straight out of his finished edit `Footage/
   "seen videos" 471, "millions" 293, "dollars" 260 -> best fit Montserrat SemiBold ~76 px, 6 px outline). The grouping
   was tightened to the opening's 2-3 word rhythm; `build_ai_influencer.caption_png/phrase_captions` now delegate to it,
   so the AI Influencer and GTA builds use it too. Keep the comma in patched tokens (".now,") or captions run across it.
+- **Revenue card, his follow-up:** bigger and more central. Now 640 px wide (was 420), centred horizontally (x 220), top y 110,
+  so it sits above his hair (hair top ~y 520 in clip 0543) and clear of his face and raised finger; it appears on the word
+  "start" of "start getting payouts like this" (24.6s) and stays to the end of that clip. "Middle of the screen" means
+  horizontally centred at the top: the vertical middle is his face, which pictures must never cover.

@@ -176,9 +176,10 @@ def main():
     c43 = next(c for c in clips if c["cid"] == "0543")
     k_pay = next(i for i, w in enumerate(c43["words"]) if w["w"].lower().startswith("payouts"))
     rev = Image.open(f"{B}/{REV_CARD}").convert("RGB")
-    rev = rev.resize((420, round(rev.height * 420 / rev.width)), Image.LANCZOS)
+    REV_W, REV_TOP = 640, 110     # his follow-up: bigger and centred (was 420 wide at x 30, y 55)
+    rev = rev.resize((REV_W, round(rev.height * REV_W / rev.width)), Image.LANCZOS)
     rev.save(f"{OV}/rev_top.png")
-    caps.append((f"{OV}/rev_top.png", c43["wf"][k_pay], c43["f1"], 55 + bai.CAP_H // 2, 30))   # y top 55, x 30 (above the fingertip)
+    caps.append((f"{OV}/rev_top.png", c43["wf"][k_pay - 2], c43["f1"], REV_TOP + bai.CAP_H // 2, (W - REV_W) // 2))   # y top 55, x 30 (above the fingertip)
     for p, *_ in caps:
         cmd += ["-i", p]
     mi = len(clips) + len(caps)
