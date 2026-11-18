@@ -1,5 +1,18 @@
 # Video editing rules for this repo
 
+## START HERE (new session checklist)
+
+1. Read this file and `.claude/skills/captions/SKILL.md` fully before editing anything.
+2. Run on the `alexj-greenUGC` cloud environment (allows the Hugging Face hosts faster-whisper needs).
+3. Fetch the raw clips: `git fetch origin footage`, then `git show origin/footage:"Footage/<file>" > local file`
+   (the folder `Footage/Example Video/` holds his reference videos). Notion file links expire after 5 minutes: download at once with curl.
+4. Make a working folder (`EDIT_WORKDIR`, in the scratchpad) with `fonts/Lato-Bold.ttf` (`npm pack @fontsource/lato`, convert the
+   latin-700 woff2 with fontTools), `fonts/Montserrat-SemiBold.ttf`, `assets/` (music, metallic riser, Apple emoji PNGs from
+   `npm pack emoji-datasource-apple`) and the clips. The Notion page for the format lists the other assets.
+5. Pick the format section below (or the nearest one), reuse its `tools/build_*.py`, transcribe with `tools/transcribe_clips.py`.
+6. Before sending: re-transcribe the output, check frames at every cut, nothing over his face, no dead space, last word finished.
+7. Send the video with SendUserFile, remind him to download it, then save new rules to this file and push.
+
 **The four rules he repeats most (never break them):**
 1. Cut dead space down to a fraction of a second (a few frames between clips, no pauses).
 2. Captions: the permanent style in `.claude/skills/captions` / `tools/captions.py` (matches his 1117 opening
