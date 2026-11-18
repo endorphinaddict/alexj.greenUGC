@@ -347,6 +347,25 @@ labels are full phrases, as in the example.
   10 ms of audio in the final file, not just the planned cut. Sped-up step audio must be cut from extra source
   (end + 0.5 s x speed) then trimmed, or `apad` fills the shortfall with digital silence (a 0.3 s dead gap).
 
+## Format: "Edit This" (GTA 6 + Buzzy, Notion "Faceless YouTube Channel")
+
+He assembles the edit himself (`Footage/edit this.mp4`, 1080x1920, no captions or overlays) and I finish it in the style
+of `Footage/Example Video/AQMq...mp4` (720x1280): talking hook -> screen demo -> close-up CTA.
+- Script: `tools/build_edit_this.py` (set `EDIT_WORKDIR`; needs `et/in/edit_this.mp4`, `et/in.json`, `et/na/gta2.webp`
+  + `buzzy_logo.png` (Notion page assets), `et/cards/card1-3.png` + `rev_cta.png`, `assets/` music, riser, emoji).
+  Two passes: each tight-cut piece is rendered on its own and concatenated (no `split` of a 1080x1920 source), then overlays + audio.
+- Hook row (whole talking hook): GTA 6 art + "+" + Buzzy bee logo + "=" + 🤑, with "+" and "=" in the caption font. The
+  example says "YT Shorts"; his direction is the bee logo instead.
+- Revenue cards ($619.83, $3,287.17, $16,796.88, cropped from the example at t=1s, padded to the same size): in the example
+  all three sit at the left. He points with a **pen** on the right, so they go in one column at x 690, 360 px wide, each
+  appearing on its "every day / week / month" above the pen tip, and all gone at the cut after "month". The "month" pen tip
+  is low (y ~1530), so that card stops at y 1415, above the captions.
+- CTA "Post two of these a day to start getting payouts like this": the $7,165.77 card is on screen for the whole clip, centred,
+  640 px, top y 110 (permanent rule). Close-up CTA captions sit at baseline 1640.
+- Section cuts in his file: demo at 17.067s, CTA at 38.933s, second CTA clip at 41.933s. After "just like this one" there are 8s
+  of quiet result footage; that is dead space and is cut.
+- Captions: "6" is spelled "six", and "gta six" / "two weeks" are kept in one caption (`KEEP_TOGETHER`).
+
 ## Format: Buzzy Roblox (reuse a finished edit, swap the demo)
 
 His direction: take the hook and CTA straight out of his finished edit `Footage/Example Video/1117 (2).mp4`
