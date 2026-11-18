@@ -364,6 +364,7 @@ of `Footage/Example Video/AQMq...mp4` (720x1280): talking hook -> screen demo ->
   640 px, top y 110 (permanent rule). Close-up CTA captions sit at baseline 1640.
 - Section cuts in his file: demo at 17.067s, CTA at 38.933s, second CTA clip at 41.933s. After "just like this one" there are 8s
   of quiet result footage; that is dead space and is cut.
+- His follow-up: the clip after "now you have a video just like this one" plays 3 s longer (`RESULT_HOLD`); the caption ends with the words, no caption over the hold.
 - Captions: "6" is spelled "six", and "gta six" / "two weeks" are kept in one caption (`KEEP_TOGETHER`).
 
 ## Format: Buzzy Roblox (reuse a finished edit, swap the demo)

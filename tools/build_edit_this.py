@@ -37,6 +37,7 @@ SRC = f"{ET}/in/edit_this.mp4"
 DEMO_START = 17.0667
 CTA_START = 38.9333
 CTA2_START = 41.9333          # "And if you want the exact prompt..."
+RESULT_HOLD = 3.0            # extra seconds the generated video plays after "just like this one"
 END_TAIL = 0.25              # keep this much after the last word ends (never clip the final word)
 
 # Pen tip measured on gridded frames (1080x1920) while he says each phrase. Head is x ~80-560.
@@ -65,6 +66,12 @@ def plan():
     last_e = words[-1]["e"]
     ks, ke = keeps[-1]
     keeps[-1] = (ks, min(math.floor(dur * fps) / fps, max(ke, math.ceil((last_e + END_TAIL) * fps) / fps)))
+    # his ask: "now you have a video just like this one" holds 3 s so the finished video plays on screen
+    for i, w in enumerate(words):
+        if w["w"].strip().lower().startswith("one") and words[i - 1]["w"].strip().lower() == "this":
+            for j, (ks, ke) in enumerate(keeps):
+                if ks <= w["e"] <= ke + 0.1:
+                    keeps[j] = (ks, min(CTA_START - 0.1, ke + RESULT_HOLD))
     # a keep must not straddle a section cut (the riser and the revenue card land on those cuts)
     out = []
     for ks, ke in keeps:
@@ -238,6 +245,9 @@ def main():
     for j, (text, a, b) in enumerate(caps):
         fa = 0 if j == 0 else out_frame(words[a]["s"])
         fb = out_frame(words[caps[j + 1][1]]["s"]) if j + 1 < len(caps) else F
+        we = out_frame(words[b]["e"]) + 6
+        if fb > we + 15:
+            fb = we                       # the caption ends with its words, not over the extra hold
         # a caption never hangs over a section cut
         for c in (f_demo, f_cta):
             if fa < c < fb:
