@@ -2,10 +2,11 @@
 
 Measured off the opening captions of his finished edit `Footage/Example Video/1117 (2).mp4`:
   - one line, white text, thick black outline, no drop shadow
-  - font: CapCut "Classic" look = Montserrat SemiBold (free stand-in for Proxima Nova Semibold), 76 px
-  - outline: black, 6 px
+  - font: Lato Bold, 92 px (best match of 15 free fonts to the opening's letter shapes, IoU 0.75;
+    Montserrat scored lowest, 0.58, and looked visibly wider)
+  - outline: black, 4 px
   - all lowercase, no punctuation, numbers spelled out ("a five thousand dollar course")
-  - 1-3 words per caption (4 only when they are all short, e.g. "let me show you"), never wider than ~760 px
+  - 1-3 words per caption (4 only when they are all short, e.g. "let me show you"), never wider than ~860 px
   - a caption appears on its first word and holds until the next caption starts
   - text baseline at y = 1325 on a 1080x1920 frame (below the chin); close-up clips use 1610
 See .claude/skills/captions/SKILL.md for the full recipe and checks.
@@ -17,9 +18,9 @@ from PIL import Image, ImageDraw, ImageFont
 W = 1080
 CAP_H = 200            # caption canvas height
 BASELINE = 130         # baseline position inside the canvas
-FONT_SIZE = 76
-STROKE = 6
-MAX_WIDTH = 760        # px, keeps a caption well inside the frame
+FONT_SIZE = 92
+STROKE = 4
+MAX_WIDTH = 860        # px, keeps a caption well inside the frame
 MAX_WORDS = 4
 BASELINE_Y = 1325      # where the baseline lands on the frame for normal footage
 BASELINE_Y_CLOSEUP = 1610   # when his face/chin/mic sit low (close-ups)
@@ -37,12 +38,12 @@ NUMBER_WORDS = {"$5,000": "five thousand dollars", "5,000": "five thousand", "$5
 
 def _font_path():
     for p in (os.environ.get("CAPTION_FONT"),
-              os.path.join(os.environ.get("EDIT_WORKDIR", "work"), "fonts", "Montserrat-SemiBold.ttf"),
-              "fonts/Montserrat-SemiBold.ttf"):
+              os.path.join(os.environ.get("EDIT_WORKDIR", "work"), "fonts", "Lato-Bold.ttf"),
+              "fonts/Lato-Bold.ttf"):
         if p and os.path.exists(p):
             return p
-    raise FileNotFoundError("Montserrat-SemiBold.ttf missing: `npm pack @fontsource/montserrat`, take "
-                            "files/montserrat-latin-600-normal.woff2 and convert it with fontTools "
+    raise FileNotFoundError("Lato-Bold.ttf missing: `npm pack @fontsource/lato`, take "
+                            "files/lato-latin-700-normal.woff2 and convert it to TTF with fontTools "
                             "(see .claude/skills/captions/SKILL.md)")
 
 

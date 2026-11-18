@@ -3,7 +3,7 @@
 **The four rules he repeats most (never break them):**
 1. Cut dead space down to a fraction of a second (a few frames between clips, no pauses).
 2. Captions: the permanent style in `.claude/skills/captions` / `tools/captions.py` (matches his 1117 opening
-   captions: Montserrat SemiBold 76 px, thick black outline, one line, 2-3 words, lowercase). Never restyle them.
+   captions: Lato Bold 92 px, 4 px black outline, one line, 2-3 words, lowercase). Never restyle them.
 3. Never put a picture over his face; place it beside, above or below the head.
 4. If he is pointing, put the picture where he points.
 
@@ -32,14 +32,17 @@ Follow these on every edit. They come from his direct feedback.
 
 **Permanent, decided by him: use the captions from the opening of `1117 (2).mp4` on every video.** The full recipe is the
 skill `.claude/skills/captions/SKILL.md`; the code is `tools/captions.py` (all build scripts use it). Summary: one
-line, white, 6 px black outline, Montserrat SemiBold 76 px (CapCut "Classic" stand-in), lowercase, no punctuation,
-2-3 words, baseline y 1325 (y 1610 on low close-ups). Older caption rules (50 px with shadow, 1-2 words, Bold 66 px)
-are obsolete. The top "Comment "AI"..." text still uses SemiBold at 56 px.
+line, white, 4 px black outline, **Lato Bold 92 px** (measured best match to the opening; Montserrat was visibly
+off), lowercase, no punctuation, 2-3 words, baseline y 1325 (y 1610 on low close-ups). Older caption rules
+(Montserrat at 50/66/76 px, shadows, 1-2 words) are obsolete. The top "Comment "AI"..." text still uses SemiBold at 56 px.
 
 ## Assets that must appear
 
-- Earnings picture on "thousands of dollars" **and** on "get payouts like this" (he points up at the
-  top of the screen there, so put it at the top, above his head).
+- Earnings picture on "thousands of dollars".
+- **Permanent rule (his words: "commit this to memory"):** whenever a CTA clip says "start posting [N] a day / post
+  these ... (and) get payouts like this", the **estimated-revenue card is on screen for that ENTIRE clip**, from its
+  first frame to its last, **horizontally centred at the top, 640 px wide (top y ~110)**, above his hair and never
+  over his face. Implemented in build_buzzy_roblox.py, build_gta_shorts.py and build_ai_influencer.py.
 - Views picture on "millions of views".
 - Riser sound effect leading into the screen section; background music kept low under his voice.
   Use his **metallic high riser** (`metallic_high_riser.mp4`, not the Notion `riser_sfx.mp3`). Its

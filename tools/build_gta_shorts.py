@@ -184,8 +184,10 @@ def main():
     # earnings card above his head on "payouts like this"
     c = by["0495"]
     tok = next(i for i, w in enumerate(c["words"]) if w["w"].lower().startswith("payouts"))
-    h = card(f"{AG}/earnings.jpg", f"{OV}/earn_top.png", width=420)
-    layers.append((f"{OV}/earn_top.png", 330, 55, c["wf"][tok], c["f1"]))
+    # his permanent rule: on a "start posting ... payouts like this" CTA clip, the estimated-revenue card is on screen
+    # for the ENTIRE clip, horizontally centred at the top, 640 px wide (top y 110, above his hair)
+    h = card(f"{AG}/earnings.jpg", f"{OV}/earn_top.png", width=640)
+    layers.append((f"{OV}/earn_top.png", (W - 640) // 2, 110, c["f0"], c["f1"]))
 
     # CTA text at the top for the last clip
     cta_png(f"{OV}/cta.png")

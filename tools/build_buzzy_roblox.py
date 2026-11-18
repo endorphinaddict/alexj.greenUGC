@@ -179,7 +179,7 @@ def main():
     REV_W, REV_TOP = 640, 110     # his follow-up: bigger and centred (was 420 wide at x 30, y 55)
     rev = rev.resize((REV_W, round(rev.height * REV_W / rev.width)), Image.LANCZOS)
     rev.save(f"{OV}/rev_top.png")
-    caps.append((f"{OV}/rev_top.png", c43["wf"][k_pay - 2], c43["f1"], REV_TOP + bai.CAP_H // 2, (W - REV_W) // 2))   # y top 55, x 30 (above the fingertip)
+    caps.append((f"{OV}/rev_top.png", c43["f0"], c43["f1"], REV_TOP + bai.CAP_H // 2, (W - REV_W) // 2))   # y top 55, x 30 (above the fingertip)
     for p, *_ in caps:
         cmd += ["-i", p]
     mi = len(clips) + len(caps)

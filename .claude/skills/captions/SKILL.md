@@ -10,10 +10,12 @@ of `Footage/Example Video/1117 (2).mp4` (the hook, 0-11 s). All code lives in `t
 script (`build_ai_influencer.py`, `build_gta_shorts.py`, `build_buzzy_roblox.py`) already calls it.
 
 ## The look
-- **One line**, white text, **thick black outline (6 px)**, no drop shadow, no background box.
-- Font: CapCut "Classic" look = **Montserrat SemiBold, 76 px** (free stand-in for Proxima Nova Semibold). Get the font:
-  `npm pack @fontsource/montserrat`, take `files/montserrat-latin-600-normal.woff2`, convert to TTF with fontTools,
-  save as `$EDIT_WORKDIR/fonts/Montserrat-SemiBold.ttf` (or set `CAPTION_FONT`).
+- **One line**, white text, **black outline 4 px**, no drop shadow, no background box.
+- Font: **Lato Bold, 92 px**. Chosen by measurement: 15 free fonts were scored against the white letter shapes of four
+  real opening captions ("seen videos", "make the same", "someone else", "exact videos"); Lato Bold won (IoU 0.745),
+  Figtree SemiBold was close (0.728), Montserrat was the worst (0.58, visibly wider and rounder; he noticed). Get it:
+  `npm pack @fontsource/lato`, take `files/lato-latin-700-normal.woff2`, convert to TTF with fontTools, save as
+  `$EDIT_WORKDIR/fonts/Lato-Bold.ttf` (or set `CAPTION_FONT`).
 - **All lowercase, no punctuation**, numbers spelled out ("a five thousand dollar course"). Keep `buzzy.now`, `i'll`.
 - Centred horizontally. **Text baseline at y = 1325** on the 1080x1920 frame (just under the chin). On close-up clips
   where his face/chin/mic sit low (y ~1250-1450), the baseline is **1610**. Overlay the 1080x200 caption PNG at
@@ -29,12 +31,15 @@ script (`build_ai_influencer.py`, `build_gta_shorts.py`, `build_buzzy_roblox.py`
 
 ## Do not
 - Do not use other fonts, sizes, outlines, shadows or two-line captions. (Earlier versions used Montserrat SemiBold
-  50 px with a soft shadow, then Montserrat Bold 66 px; both were replaced because they did not match the opening.)
+  50 px with a soft shadow, Montserrat Bold 66 px, then Montserrat SemiBold 76 px; all were replaced because he saw they
+  did not match the opening.)
 - Do not touch the captions burned into reused footage (e.g. the hook/CTA of 1117); new captions must match THEM.
 - The no-talking split-screen formats (Claude YouTube, Foundable steps) use full-phrase step labels copied from their
   reference video; this skill is for spoken-word captions.
 
 ## Check before sending
+0. If a new reference video arrives, re-run the font fit (`scratchpad` recipe: crop its captions at y 1230-1400, mask
+   pixels with min(R,G,B) > 225, score fonts/sizes/baselines by IoU) rather than eyeballing.
 1. Put a frame from the reference captions next to a frame from the new captions (same crop, y 1230-1390): size,
    outline and position must look identical.
 2. Look at one frame in each section (hook, demo, ending) for any caption sitting on his face or on a card.

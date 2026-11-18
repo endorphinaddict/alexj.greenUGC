@@ -364,8 +364,9 @@ def stage_b(segs, total, base, out, preview=None):
     # 0341 tokens: 0 now 1 all 2 you 3 need 4 to 5 do 6 is 7 post 8 consistently 9 to 10 get 11 payouts 12 like 13 this
     # Where he points at the top of the screen: card sits above his head, clear of the face.
     pw = payouts_s["wt"]
-    card_png(f"{A}/earnings.jpg", f"{OV}/earn_top.png", width=420)
-    layers.append((f"{OV}/earn_top.png", 330, 55, pw[11][0], payouts_s["t0"] + payouts_s["d"]))
+    # his permanent rule: estimated-revenue card for the ENTIRE "post ... payouts like this" clip, centred, 640 px wide
+    card_png(f"{A}/earnings.jpg", f"{OV}/earn_top.png", width=640)
+    layers.append((f"{OV}/earn_top.png", (W - 640) // 2, 110, payouts_s["t0"], payouts_s["t0"] + payouts_s["d"]))
     print(f"dance popup 0.00-{hook_s['d']:.2f} (baked into hook clip); "
           f"payouts card {pw[11][0]:.2f}-{payouts_s['t0'] + payouts_s['d']:.2f}")
 
