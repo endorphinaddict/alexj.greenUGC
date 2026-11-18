@@ -409,3 +409,18 @@ His direction: take the hook and CTA straight out of his finished edit `Footage/
   so it sits above his hair (hair top ~y 520 in clip 0543) and clear of his face and raised finger; it appears on the word
   "start" of "start getting payouts like this" (24.6s) and stays to the end of that clip. "Middle of the screen" means
   horizontally centred at the top: the vertical middle is his face, which pictures must never cover.
+
+## Format: "Claude YouTube" TALKING version (voice from a separate DJI clip)
+
+His direction: keep his original no-talking video (clips, labels, music) and put the audio of `Footage/Dji ... 0593 D.mp4`
+(its picture is not used) on it, matched to the clips like the example `Footage/Example Video/Claude-YouTube-talking-16s.mp4`
+(the hook is silent over the music, each voice line starts on the cut to its clip, music ducked under the voice).
+- Script: `tools/build_claude_youtube_voice.py` (reuses `build_claude_youtube.py` for labels/layout; needs `cyt/` clips, `cy/in/dji.mp4`).
+- The DJI voice has 9 lines: go to claude | enter this prompt | copy your favorite script | go to openart.ai/direct | go to quick start |
+  select short film | paste in your prompt | post the video | post every day and get payouts like these. `tight_keeps` finds all 9
+  (whisper's word timestamps are smeared in this clip; use the audio edges). Each clip lasts exactly as long as its line; "quick start" +
+  "select short film" share the one Quick Start clip (gap cut from the audio, picture continuous). Last line keeps 0.25 s after the word.
+- Output 14.03 s: hook 70 frames, then 25, 34, 47, 65, 59, 27, 27, 67 frames. Raw clips are short, so start times are chosen so each
+  window fits (0435 starts 0.35 s, 0440 0.30 s, 0443 1.20 s, 0446 0.0 s so the stylus stays off the revenue number).
+- Labels were left as in his original ("Copy this prompt", "Paste script", "RESULTS"), although the voice says "enter this prompt",
+  "paste in your prompt", "post the video"; ask him if he wants the labels to follow the voice.
