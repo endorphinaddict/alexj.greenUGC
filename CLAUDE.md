@@ -472,3 +472,8 @@ His direction: keep his original no-talking video (clips, labels, music) and put
   Now: no synthetic noise; in the click bursts only the highs (>1 kHz, band split in numpy) are ducked -32 dB while the lows (his real room tone) keep -6 dB; inserted clicks at +1.6 dB; final chain
   `highpass 80, afftdn nr=10, acompressor 2.5:1, loudnorm I=-16 LRA 11, alimiter`; the ending line 3 dB lower. Scratchiness proxy (energy share above 4 kHz) fell 0.46 -> 0.25 while 2 s RMS std stayed 2.2 dB.
   Never use heavy compression/`dynaudnorm` on quiet room-tone material: it raises the hiss to the level of the voice.
+- **His follow-up (v9-v13): audio still inconsistent/scratchy; "use only the audio from my footage, none from the example".** Audio is now ONLY his own: hook from 0695, the split section from his continuous 0696 take
+  (reactions and sip stay in lip sync), ending from 0697. His own click bursts are replaced by looped room tone from the same take (0696 25.00-25.95 s, 80 ms crossfades, no ducking), and his typing sound is placed on the
+  example's on-screen typing windows. (The example's audio is never used; only its picture, for the screen recording.) Split section chain: highpass 90, `afftdn nr=30`, `acompressor 8:1 makeup 12`, lowpass 7 kHz
+  (2 s level std 7.0 -> 2.0 dB); then every section is set to the same integrated loudness (-17 LUFS target) and a light 2:1 compressor + limiter closes the mix. Result: -19.8 LUFS, LRA 3.8, 2 s level std 1.4 dB.
+  His face-cam mic is quiet and hissy, so a quiet room-sound section can only be made even with strong compression; never boost it plainly to voice level.

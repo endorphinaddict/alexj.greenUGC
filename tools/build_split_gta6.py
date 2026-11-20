@@ -31,7 +31,8 @@ OV = f"{G}/ov"
 os.makedirs(OV, exist_ok=True)
 W, H, FPS = 1080, 1920, 30
 SR = 48000
-TARGET_LUFS = -18.0               # every section is brought to this integrated loudness (his request: no level jumps)
+TARGET_LUFS = -17.0
+SPLIT_LUFS = -22.0                # his face-cam room sound is hissy: boosting it to voice level would amplify the hiss, so it sits ~7 LU under the voice sections               # every section is brought to this integrated loudness (his request: no level jumps)
 
 # 0695 hook, his direction: MORE CUTS at the start to keep attention: sitting down into the chair -> popping the cup open (pop at 4.2 s)
 # -> drinking -> counting down "three, two, one" (ends with the finger at the camera). (start second, seconds); total 6.4 s like the example.
@@ -133,38 +134,44 @@ def fade(a, ms=8):
     return a
 
 
+ROOM_TONE = (25.00, 25.95)   # 0696 seconds of pure room tone (no clicks, no voice): fills the bursts that were taken out
+
+
 def split_audio(n_frames, path):
+    """ONLY his own 0696 audio is used (nothing from the example). The continuous take keeps his reactions and the sip in lip sync;
+    each of his click bursts is replaced by looped room tone from the same take (a hard crossfade, no ducking, no filters, no added noise),
+    and his typing sound is placed so it starts and ends with the typing on the example's screen."""
     dur = n_frames / FPS
-    bed = read_audio(f"{G}/in/0696.mp4", TOP_START, dur) * 2.4          # +6 dB room sound, as in the earlier split-screen builds
-    env = np.ones(len(bed), np.float32)
-    duck = 10 ** (-32 / 20)
-    for b0, b1 in BURSTS:
-        i0, i1 = int((b0 - TOP_START) * SR), int((b1 - TOP_START) * SR)
-        if i1 <= 0 or i0 >= len(env):
-            continue
-        i0, i1 = max(0, i0), min(len(env), i1)
-        env[i0:i1] = np.minimum(env[i0:i1], duck)
-    k = np.ones(int(0.03 * SR)) / int(0.03 * SR)                           # 30 ms ramps
-    env = np.convolve(env, k, mode="same").astype(np.float32)
-    # band-split: key clicks are mostly above ~1 kHz, his room tone is low, so duck the highs hard and the lows only a little.
-    # (An earlier version ducked everything and filled the gaps with synthetic noise, which sounded scratchy once the level was evened out.)
-    n = 255
-    t = np.arange(n) - n // 2
-    lp = np.sinc(2 * 1000 / SR * t) * np.hanning(n)
-    lp /= lp.sum()
-    low = np.stack([np.convolve(bed[:, c], lp, mode="same") for c in range(2)], axis=1)
-    high = bed - low
-    low_env = np.maximum(env, 10 ** (-6 / 20))
-    bed = low * low_env[:, None] + high * env[:, None]
+    n = int(round(dur * SR))
+    bed = read_audio(f"{G}/in/0696.mp4", TOP_START, dur)
+    tone = read_audio(f"{G}/in/0696.mp4", ROOM_TONE[0], ROOM_TONE[1] - ROOM_TONE[0])
+    xf = int(0.08 * SR)
+    loop = tone.copy()
+    while len(loop) < n + len(tone):                                          # loop the tone with 80 ms crossfades
+        a_, b_ = loop[-xf:], tone[:xf]
+        ramp = np.linspace(0, 1, xf)[:, None]
+        loop = np.concatenate([loop[:-xf], a_ * (1 - ramp) + b_ * ramp, tone[xf:]])
+    loop = loop[:n]
+
+    def mask(ranges, ramp_ms=40):
+        m = np.zeros(n, np.float32)
+        for r0, r1 in ranges:
+            i0, i1 = max(0, int(r0 * SR)), min(n, int(r1 * SR))
+            if i1 > i0:
+                m[i0:i1] = 1.0
+        k = np.ones(int(ramp_ms / 1000 * SR)) / int(ramp_ms / 1000 * SR)
+        return np.clip(np.convolve(m, k, mode="same"), 0, 1)[:, None]
+
+    m = mask([(b0 - TOP_START, b1 - TOP_START) for b0, b1 in BURSTS])
+    out = bed * (1 - m) + loop * m
     for (e0, e1), (h0, h1) in TYPING:
-        seg = read_audio(f"{G}/in/0696.mp4", h0, h1 - h0) * 1.2
-        want = int(round((e1 - e0) * SR))
-        if abs(len(seg) - want) > 1:                                        # same length by construction; guard anyway
-            seg = seg[:want]
-        i0 = int(round((e0 - EX_SPLIT[0]) * SR))
-        seg = fade(seg)
-        bed[i0:i0 + len(seg)] += seg[: len(bed) - i0]
-    write_wav(bed, path)
+        seg = read_audio(f"{G}/in/0696.mp4", h0 - 0.04, h1 - h0 + 0.08)       # 40 ms either side for the crossfade
+        i0 = int(round((e0 - 0.04 - EX_SPLIT[0]) * SR))
+        mm = mask([(e0 - EX_SPLIT[0], e1 - EX_SPLIT[0])], 40)
+        full = np.zeros_like(out)
+        full[i0:i0 + len(seg)] = seg[: n - i0]
+        out = out * (1 - mm) + full * mm
+    write_wav(out, path)
 
 
 def main():
@@ -185,7 +192,7 @@ def main():
         g.append(f"[0:v:0]trim=start={a:.4f}:end={a + n / FPS + 0.1:.4f},setpts=PTS-STARTPTS,fps={FPS},trim=end_frame={n},"
                  f"crop={hw}:{hh}:{hx}:{hy},scale=1080:987:flags=lanczos,setsar=1,format=yuv420p[hv{i}]")
         g.append(f"[0:a]atrim=start={a:.4f}:end={a + n / FPS:.4f},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,"
-                 f"volume=6dB,afade=t=in:d=0.008,afade=t=out:st={n / FPS - 0.008:.4f}:d=0.008[ha{i}]")
+                 f"afade=t=in:d=0.008,afade=t=out:st={n / FPS - 0.008:.4f}:d=0.008[ha{i}]")
     g.append("".join(f"[hv{i}]" for i in range(k)) + f"concat=n={k}:v=1:a=0[cam]")
     g.append("".join(f"[ha{i}]" for i in range(k)) + f"concat=n={k}:v=0:a=1[a]")
     g.append(f"color=c=black:s={W}x{H}:r={FPS}:d={n_hook / FPS:.4f},format=yuv420p[bg];[bg][cam]overlay=0:528:shortest=1[c1];[c1][1:v]overlay=0:345,format=yuv420p[v]")
@@ -230,18 +237,23 @@ def main():
             "-crf", "10", "-c:a", "pcm_s16le", f"{OV}/split.mkv"]
     run(cmd)
 
-    # ---- join. His request: audio levels consistent all the way through. Each section is first brought to the same
-    # integrated loudness (they were -18 / -26 / -11 LUFS), then a light compressor evens out the key clicks and voice peaks.
+    # ---- join. Audio comes ONLY from his footage (0695 hook, 0696 face-cam, 0697 ending). The split section's room sound is hissy and
+    # swings between near-silence and loud key clicks, so it is cleaned (denoise, 7 kHz low-pass) and levelled with a strong compressor
+    # (std of the 2 s level 7.0 -> 2.0 dB); then all three sections are set to the same integrated loudness.
+    proc = f"{OV}/split_proc.wav"
+    run(["ffmpeg", "-v", "error", "-y", "-i", f"{OV}/split.mkv", "-vn", "-af",
+         "highpass=f=90,afftdn=nr=30:nf=-60:tn=1,acompressor=threshold=0.008:ratio=8:attack=20:release=500:makeup=12,lowpass=f=7000",
+         "-c:a", "pcm_s16le", proc])
     gains = []
-    for name in ("hook", "split", "cta"):
-        r = subprocess.run(["ffmpeg", "-hide_banner", "-i", f"{OV}/{name}.mkv", "-af", "ebur128", "-f", "null", "-"], capture_output=True, text=True).stderr
+    for name, f_ in (("hook", f"{OV}/hook.mkv"), ("split", proc), ("cta", f"{OV}/cta.mkv")):
+        r = subprocess.run(["ffmpeg", "-hide_banner", "-i", f_, "-af", "ebur128", "-f", "null", "-"], capture_output=True, text=True).stderr
         lufs = float(r.split("Integrated loudness:")[-1].split("I:")[1].split("LUFS")[0])
-        gains.append(max(-14.0, min(14.0, TARGET_LUFS - lufs - (3.0 if name == "cta" else 0.0))))   # the ending line is a close shout over room tone: 3 dB lower sits level with the rest
+        gains.append(max(-14.0, min(14.0, TARGET_LUFS - lufs)))
         print(f"{name}: {lufs:.1f} LUFS -> gain {gains[-1]:+.1f} dB", flush=True)
-    run(["ffmpeg", "-v", "error", "-y", "-i", f"{OV}/hook.mkv", "-i", f"{OV}/split.mkv", "-i", f"{OV}/cta.mkv", "-filter_complex",
-         "[0:a]volume=%.2fdB[a0];[1:a]volume=%.2fdB[a1];[2:a]volume=%.2fdB[a2];" % tuple(gains) +
+    run(["ffmpeg", "-v", "error", "-y", "-i", f"{OV}/hook.mkv", "-i", f"{OV}/split.mkv", "-i", f"{OV}/cta.mkv", "-i", proc, "-filter_complex",
+         "[0:a]highpass=f=70,volume=%.2fdB[a0];[3:a]volume=%.2fdB[a1];[2:a]highpass=f=70,volume=%.2fdB[a2];" % tuple(gains) +
          "[0:v][a0][1:v][a1][2:v][a2]concat=n=3:v=1:a=1[v][a3];"
-         "[a3]highpass=f=80,afftdn=nr=10:nf=-48,acompressor=threshold=0.1:ratio=2.5:attack=10:release=300:makeup=2,loudnorm=I=-16:TP=-2:LRA=11,alimiter=limit=0.9:level=disabled[a]",
+         "[a3]acompressor=threshold=0.18:ratio=2:attack=15:release=250:makeup=1,alimiter=limit=0.9:level=disabled[a]",
          "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-r", str(FPS),
          "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out])
 
