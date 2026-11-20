@@ -468,3 +468,7 @@ His direction: keep his original no-talking video (clips, labels, music) and put
   (2) **consistent audio levels, no ups and downs:** the sections were -17 / -26 / -10 LUFS and the typing bursts were far louder than the gaps. Now: each section gain-matched to -18 LUFS, a steady
   room-tone floor (-47 dBFS soft noise) under the split screen so gaps never go dead quiet, then `acompressor` + `dynaudnorm` + `loudnorm I=-16`. Result: -16.1 LUFS, LRA 2.8 LU,
   2-second RMS std 1.8 dB (was 9.3). Always check 2 s RMS across the whole video, not just integrated loudness.
+- **His follow-up: audio was scratchy / "too much feedback" (v6).** Causes: the synthetic noise floor and `dynaudnorm`/6:1 compression boosted hiss and clicks by 15-20 dB, and the typing clicks were +7.6 dB hot.
+  Now: no synthetic noise; in the click bursts only the highs (>1 kHz, band split in numpy) are ducked -32 dB while the lows (his real room tone) keep -6 dB; inserted clicks at +1.6 dB; final chain
+  `highpass 80, afftdn nr=10, acompressor 2.5:1, loudnorm I=-16 LRA 11, alimiter`; the ending line 3 dB lower. Scratchiness proxy (energy share above 4 kHz) fell 0.46 -> 0.25 while 2 s RMS std stayed 2.2 dB.
+  Never use heavy compression/`dynaudnorm` on quiet room-tone material: it raises the hiss to the level of the voice.

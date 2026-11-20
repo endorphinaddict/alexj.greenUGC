@@ -146,22 +146,24 @@ def split_audio(n_frames, path):
         env[i0:i1] = np.minimum(env[i0:i1], duck)
     k = np.ones(int(0.03 * SR)) / int(0.03 * SR)                           # 30 ms ramps
     env = np.convolve(env, k, mode="same").astype(np.float32)
-    bed *= env[:, None]
+    # band-split: key clicks are mostly above ~1 kHz, his room tone is low, so duck the highs hard and the lows only a little.
+    # (An earlier version ducked everything and filled the gaps with synthetic noise, which sounded scratchy once the level was evened out.)
+    n = 255
+    t = np.arange(n) - n // 2
+    lp = np.sinc(2 * 1000 / SR * t) * np.hanning(n)
+    lp /= lp.sum()
+    low = np.stack([np.convolve(bed[:, c], lp, mode="same") for c in range(2)], axis=1)
+    high = bed - low
+    low_env = np.maximum(env, 10 ** (-6 / 20))
+    bed = low * low_env[:, None] + high * env[:, None]
     for (e0, e1), (h0, h1) in TYPING:
-        seg = read_audio(f"{G}/in/0696.mp4", h0, h1 - h0) * 2.4
+        seg = read_audio(f"{G}/in/0696.mp4", h0, h1 - h0) * 1.2
         want = int(round((e1 - e0) * SR))
         if abs(len(seg) - want) > 1:                                        # same length by construction; guard anyway
             seg = seg[:want]
         i0 = int(round((e0 - EX_SPLIT[0]) * SR))
         seg = fade(seg)
         bed[i0:i0 + len(seg)] += seg[: len(bed) - i0]
-    # a steady room-tone floor (soft low-passed noise, about -47 dBFS) so the gaps between typing bursts never go dead-quiet
-    rng = np.random.default_rng(7)
-    nz = rng.standard_normal((len(bed), 2)).astype(np.float32)
-    k = np.ones(8) / 8
-    nz = np.stack([np.convolve(nz[:, c], k, mode="same") for c in range(2)], axis=1)
-    nz *= 10 ** (-47 / 20) / (np.sqrt((nz ** 2).mean()) + 1e-9)
-    bed += nz
     write_wav(bed, path)
 
 
@@ -234,12 +236,12 @@ def main():
     for name in ("hook", "split", "cta"):
         r = subprocess.run(["ffmpeg", "-hide_banner", "-i", f"{OV}/{name}.mkv", "-af", "ebur128", "-f", "null", "-"], capture_output=True, text=True).stderr
         lufs = float(r.split("Integrated loudness:")[-1].split("I:")[1].split("LUFS")[0])
-        gains.append(max(-14.0, min(14.0, TARGET_LUFS - lufs)))
+        gains.append(max(-14.0, min(14.0, TARGET_LUFS - lufs - (3.0 if name == "cta" else 0.0))))   # the ending line is a close shout over room tone: 3 dB lower sits level with the rest
         print(f"{name}: {lufs:.1f} LUFS -> gain {gains[-1]:+.1f} dB", flush=True)
     run(["ffmpeg", "-v", "error", "-y", "-i", f"{OV}/hook.mkv", "-i", f"{OV}/split.mkv", "-i", f"{OV}/cta.mkv", "-filter_complex",
          "[0:a]volume=%.2fdB[a0];[1:a]volume=%.2fdB[a1];[2:a]volume=%.2fdB[a2];" % tuple(gains) +
          "[0:v][a0][1:v][a1][2:v][a2]concat=n=3:v=1:a=1[v][a3];"
-         "[a3]acompressor=threshold=0.03:ratio=6:attack=5:release=200:makeup=3,dynaudnorm=f=200:g=31:m=30:s=5:p=0.9,loudnorm=I=-16:TP=-1.5:LRA=5,alimiter=limit=0.85:level=disabled[a]",
+         "[a3]highpass=f=80,afftdn=nr=10:nf=-48,acompressor=threshold=0.1:ratio=2.5:attack=10:release=300:makeup=2,loudnorm=I=-16:TP=-2:LRA=11,alimiter=limit=0.9:level=disabled[a]",
          "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-r", str(FPS),
          "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out])
 
