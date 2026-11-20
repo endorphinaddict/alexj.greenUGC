@@ -449,3 +449,17 @@ His direction: keep his original no-talking video (clips, labels, music) and put
   placeholder; he gave none); from the word "comment" in 0609 it becomes "COMMENT BUZZY", bottom captions keep running.
 - Revenue card $7,165.77 for the whole 0610 clip (permanent rule). 34.03 s total. Not used from the Inspiration: the Roblox story pop-up and the
   9M views picture (the new script has no matching lines).
+
+## Format: Split-screen steps, "GTA 6 pays my rent" (Nov 19 footage, example `Example Video/I bet so many people are gonna print with GTA 6 and Openart...mp4`)
+
+- Script: `tools/build_split_gta6.py`. Same layout as the Foundable split-screen build, copied 1:1 from the example (44.5 s): hook 0-6.4 (title y 425/482, face-cam y 528-1515),
+  split 6.4-42.3 (face-cam y 0-790 with a timer box x 345-735 y 630-790 "00:03.51" in thin Lato, label band y 790-1058, screen y 1058-1920), ending 42.3-44.5
+  (`Comment "Free" for the Guide ✅✅`, face-cam y 520-1560). Timer = example time - 6.49 s. Label change times: 6.40, 9.67, 15.67, 19.43, 22.33, 25.73, 30.37, 34.87, 40.30.
+- His footage: 0695 (hook, 1920x1080: use 5.25-11.65 = sip -> "three, two, one" -> finger at the camera), 0696 (43 s face-cam for the top half, window from 3.93 s), 0697 (4K ending, 0-2.17 s).
+  He had NO screen recording, so his instruction was: use the screen recording from the example video itself (crop its bottom 575 px, y 705-1280, x1.5).
+- **Typing sound sync (his request):** his face-cam audio has key-click bursts (0696: 3.9-7.2, 7.7-12.7, 16.2-18.5, 20.9-24.9, 29.1-33.7 s). The bed (room sound, his reactions, the sip)
+  comes from the continuous 0696 window with those bursts ducked -32 dB, and each burst is re-placed to start and end exactly with the typing on the example's screen (windows in `TYPING`:
+  google 9.7-13.3, youtube search 19.2-20.4, url 22.0-22.8, film prompt 30.5-32.6, "GTA 6" 33.9-34.6). Check: high-passed peak level per 0.5 s is high only inside those windows.
+  Detecting on-screen typing: crop the search box and view frames every 1/3 s; frame differencing was too noisy.
+- Loudness matched to the example per section: hook +6 dB, bed +7.6 dB, ending +9 dB (the example is -15.9 / -25.5 / -9.2 LUFS).
+- Labels are the example's words ("GTA 6 comes out Today!!" etc.); the example's "Free" guide wording was kept as he says "free guide".
