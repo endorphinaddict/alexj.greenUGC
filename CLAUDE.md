@@ -481,3 +481,7 @@ His direction: keep his original no-talking video (clips, labels, music) and put
   hook = the four 0695 cuts (their own audio), split section = the raw 0696 window from `TOP_START` (his real typing, reactions and sip), ending = raw 0697. NO gain, loudness matching, compression, denoise, ducking,
   typing re-placement or limiter. (Everything described in the audio follow-ups above, v1-v13, is superseded: it made the audio worse.) Default for every future edit: leave the audio of his footage as recorded unless he asks otherwise.
   Result is naturally uneven (-26 LUFS, LRA 21 LU: loud voice in the hook and ending, quiet room sound in between), as in his example.
+- **Final audio rule for this video (v15):** "don't change the audio at all, just match WHEN he types to when typing shows on screen." So: cut-and-slide only, raw sound, no gain / filter / compression / limiter / added noise.
+  The continuous 0696 take keeps his reactions and sip in lip sync; his click bursts are cut out and covered with raw room tone from the same take (0696 25.00-25.95 s looped, 80 ms crossfades); each raw burst is placed on the
+  example's typing windows (`TYPING`). Check with `clicks.py`-style detection: 101 of 112 clicks in the split fall inside the typing windows (the rest are single natural ticks). Hook and ending audio untouched.
+  Supersedes the v14 "completely untouched" version, which left his typing out of sync with the screen.

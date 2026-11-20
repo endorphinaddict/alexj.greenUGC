@@ -137,10 +137,44 @@ def fade(a, ms=8):
 ROOM_TONE = (25.00, 25.95)   # 0696 seconds of pure room tone (no clicks, no voice): fills the bursts that were taken out
 
 
+ROOM_TONE = (25.00, 25.95)   # 0696 seconds of pure room tone (no clicks, no voice)
+
+
 def split_audio(n_frames, path):
-    """His instruction: do NOTHING to the audio. The split section's sound is the raw 0696 take from TOP_START, exactly as recorded
-    (his own typing, reactions and sip are in sync with his face). No ducking, re-placement, filters, gain or compression."""
-    write_wav(read_audio(f"{G}/in/0696.mp4", TOP_START, n_frames / FPS), path)
+    """His instruction: do not change the audio, only line up WHEN his typing is heard with WHEN typing shows on screen.
+    So this is cut-and-slide only: raw 0696 sound, no gain, no filter, no compression, no added sound.
+    The continuous 0696 take from TOP_START keeps his reactions and sip in lip sync; each click burst (his own time) is cut out and
+    covered with raw room tone from the same take (looped, 80 ms crossfades), and the burst is placed raw where the typing happens on the example's screen."""
+    dur = n_frames / FPS
+    n = int(round(dur * SR))
+    bed = read_audio(f"{G}/in/0696.mp4", TOP_START, dur)
+    tone = read_audio(f"{G}/in/0696.mp4", ROOM_TONE[0], ROOM_TONE[1] - ROOM_TONE[0])
+    xf = int(0.08 * SR)
+    loop = tone.copy()
+    while len(loop) < n + len(tone):
+        ramp = np.linspace(0, 1, xf)[:, None]
+        loop = np.concatenate([loop[:-xf], loop[-xf:] * (1 - ramp) + tone[:xf] * ramp, tone[xf:]])
+    loop = loop[:n]
+
+    def mask(ranges, ramp_ms=30):
+        m = np.zeros(n, np.float32)
+        for r0, r1 in ranges:
+            i0, i1 = max(0, int(r0 * SR)), min(n, int(r1 * SR))
+            if i1 > i0:
+                m[i0:i1] = 1.0
+        k = np.ones(int(ramp_ms / 1000 * SR)) / int(ramp_ms / 1000 * SR)
+        return np.clip(np.convolve(m, k, mode="same"), 0, 1)[:, None]
+
+    m = mask([(b0 - TOP_START, b1 - TOP_START) for b0, b1 in BURSTS])
+    out = bed * (1 - m) + loop * m
+    for (e0, e1), (h0, h1) in TYPING:
+        seg = read_audio(f"{G}/in/0696.mp4", h0 - 0.03, h1 - h0 + 0.06)
+        i0 = int(round((e0 - 0.03 - EX_SPLIT[0]) * SR))
+        mm = mask([(e0 - EX_SPLIT[0], e1 - EX_SPLIT[0])], 30)
+        full = np.zeros_like(out)
+        full[i0:i0 + len(seg)] = seg[: n - i0]
+        out = out * (1 - mm) + full * mm
+    write_wav(out, path)
 
 
 def main():
