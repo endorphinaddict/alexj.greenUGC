@@ -31,8 +31,11 @@ OV = f"{G}/ov"
 os.makedirs(OV, exist_ok=True)
 W, H, FPS = 1080, 1920, 30
 SR = 48000
+TARGET_LUFS = -18.0               # every section is brought to this integrated loudness (his request: no level jumps)
 
-HOOK_SRC = (5.25, 11.65)          # 0695: mid-sip -> countdown -> finger at the camera (6.4 s like the example)
+# 0695 hook, his direction: MORE CUTS at the start to keep attention: sitting down into the chair -> popping the cup open (pop at 4.2 s)
+# -> drinking -> counting down "three, two, one" (ends with the finger at the camera). (start second, seconds); total 6.4 s like the example.
+HOOK_CUTS = [(0.75, 0.9), (3.75, 1.0), (5.5, 1.4), (8.6, 3.1)]
 HOOK_CROP = (100, 0, 1182, 1080)  # -> 1080x987
 EX_SPLIT = (6.4, 42.3)            # example seconds of the split screen
 TOP_START = 3.93                  # 0696 window start: his "what?" lands on the example's first reaction, his sip near its sip
@@ -152,12 +155,20 @@ def split_audio(n_frames, path):
         i0 = int(round((e0 - EX_SPLIT[0]) * SR))
         seg = fade(seg)
         bed[i0:i0 + len(seg)] += seg[: len(bed) - i0]
+    # a steady room-tone floor (soft low-passed noise, about -47 dBFS) so the gaps between typing bursts never go dead-quiet
+    rng = np.random.default_rng(7)
+    nz = rng.standard_normal((len(bed), 2)).astype(np.float32)
+    k = np.ones(8) / 8
+    nz = np.stack([np.convolve(nz[:, c], k, mode="same") for c in range(2)], axis=1)
+    nz *= 10 ** (-47 / 20) / (np.sqrt((nz ** 2).mean()) + 1e-9)
+    bed += nz
     write_wav(bed, path)
 
 
 def main():
     out = sys.argv[1]
-    n_hook = round((HOOK_SRC[1] - HOOK_SRC[0]) * FPS)
+    hook_n = [round(d * FPS) for _, d in HOOK_CUTS]
+    n_hook = sum(hook_n)
     n_split = round((EX_SPLIT[1] - EX_SPLIT[0]) * FPS)
     n_cta = round((CTA_SRC[1] - CTA_SRC[0]) * FPS)
     total = (n_hook + n_split + n_cta) / FPS
@@ -166,11 +177,17 @@ def main():
     # ---- hook segment
     title_png(TITLE, f"{A}/loudly_crying.png", 2, (80, 137), 893, f"{OV}/title.png")
     hx, hy, hw, hh = HOOK_CROP
-    run(["ffmpeg", "-v", "error", "-y", "-ss", f"{HOOK_SRC[0]:.4f}", "-i", f"{G}/in/0695.mp4", "-i", f"{OV}/title.png", "-filter_complex",
-         f"[0:v:0]fps={FPS},trim=end_frame={n_hook},crop={hw}:{hh}:{hx}:{hy},scale=1080:987:flags=lanczos,setsar=1,format=yuv420p[cam];"
-         f"color=c=black:s={W}x{H}:r={FPS}:d={n_hook / FPS:.4f},format=yuv420p[bg];[bg][cam]overlay=0:528:shortest=1[c1];[c1][1:v]overlay=0:345,format=yuv420p[v];"
-         f"[0:a]atrim=0:{n_hook / FPS:.4f},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,volume=6dB,"
-         f"afade=t=in:d=0.01,afade=t=out:st={n_hook / FPS - 0.01:.4f}:d=0.01[a]",
+    k = len(HOOK_CUTS)
+    g = []
+    for i, ((a, _d), n) in enumerate(zip(HOOK_CUTS, hook_n)):
+        g.append(f"[0:v:0]trim=start={a:.4f}:end={a + n / FPS + 0.1:.4f},setpts=PTS-STARTPTS,fps={FPS},trim=end_frame={n},"
+                 f"crop={hw}:{hh}:{hx}:{hy},scale=1080:987:flags=lanczos,setsar=1,format=yuv420p[hv{i}]")
+        g.append(f"[0:a]atrim=start={a:.4f}:end={a + n / FPS:.4f},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,"
+                 f"volume=6dB,afade=t=in:d=0.008,afade=t=out:st={n / FPS - 0.008:.4f}:d=0.008[ha{i}]")
+    g.append("".join(f"[hv{i}]" for i in range(k)) + f"concat=n={k}:v=1:a=0[cam]")
+    g.append("".join(f"[ha{i}]" for i in range(k)) + f"concat=n={k}:v=0:a=1[a]")
+    g.append(f"color=c=black:s={W}x{H}:r={FPS}:d={n_hook / FPS:.4f},format=yuv420p[bg];[bg][cam]overlay=0:528:shortest=1[c1];[c1][1:v]overlay=0:345,format=yuv420p[v]")
+    run(["ffmpeg", "-v", "error", "-y", "-i", f"{G}/in/0695.mp4", "-i", f"{OV}/title.png", "-filter_complex", ";".join(g),
          "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "10", "-c:a", "pcm_s16le", f"{OV}/hook.mkv"])
 
     # ---- ending (4K source pre-rendered to 1080x1920)
@@ -211,12 +228,20 @@ def main():
             "-crf", "10", "-c:a", "pcm_s16le", f"{OV}/split.mkv"]
     run(cmd)
 
-    # ---- join
+    # ---- join. His request: audio levels consistent all the way through. Each section is first brought to the same
+    # integrated loudness (they were -18 / -26 / -11 LUFS), then a light compressor evens out the key clicks and voice peaks.
+    gains = []
+    for name in ("hook", "split", "cta"):
+        r = subprocess.run(["ffmpeg", "-hide_banner", "-i", f"{OV}/{name}.mkv", "-af", "ebur128", "-f", "null", "-"], capture_output=True, text=True).stderr
+        lufs = float(r.split("Integrated loudness:")[-1].split("I:")[1].split("LUFS")[0])
+        gains.append(max(-14.0, min(14.0, TARGET_LUFS - lufs)))
+        print(f"{name}: {lufs:.1f} LUFS -> gain {gains[-1]:+.1f} dB", flush=True)
     run(["ffmpeg", "-v", "error", "-y", "-i", f"{OV}/hook.mkv", "-i", f"{OV}/split.mkv", "-i", f"{OV}/cta.mkv", "-filter_complex",
-         "[0:v][0:a][1:v][1:a][2:v][2:a]concat=n=3:v=1:a=1[v][a0];[a0]alimiter=limit=0.7:level=disabled[a]",
+         "[0:a]volume=%.2fdB[a0];[1:a]volume=%.2fdB[a1];[2:a]volume=%.2fdB[a2];" % tuple(gains) +
+         "[0:v][a0][1:v][a1][2:v][a2]concat=n=3:v=1:a=1[v][a3];"
+         "[a3]acompressor=threshold=0.03:ratio=6:attack=5:release=200:makeup=3,dynaudnorm=f=200:g=31:m=30:s=5:p=0.9,loudnorm=I=-16:TP=-1.5:LRA=5,alimiter=limit=0.85:level=disabled[a]",
          "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-r", str(FPS),
          "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out])
-
 
 if __name__ == "__main__":
     main()

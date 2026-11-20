@@ -463,3 +463,8 @@ His direction: keep his original no-talking video (clips, labels, music) and put
   Detecting on-screen typing: crop the search box and view frames every 1/3 s; frame differencing was too noisy.
 - Loudness matched to the example per section: hook +6 dB, bed +7.6 dB, ending +9 dB (the example is -15.9 / -25.5 / -9.2 LUFS).
 - Labels are the example's words ("GTA 6 comes out Today!!" etc.); the example's "Free" guide wording was kept as he says "free guide".
+- **His follow-ups (GTA 6 split-screen):** (1) more cuts at the start to keep attention: the hook is now four hard cuts of 0695, all inside the example's 6.4 s:
+  sitting down into the chair (0.75 s, 0.9 s long) -> popping the cup open (3.75 s, 1.0 s; the pop is at 4.2 s) -> drinking (5.5 s, 1.4 s) -> counting down (8.6 s, 3.1 s, ends with the finger at the camera) (`HOOK_CUTS`).
+  (2) **consistent audio levels, no ups and downs:** the sections were -17 / -26 / -10 LUFS and the typing bursts were far louder than the gaps. Now: each section gain-matched to -18 LUFS, a steady
+  room-tone floor (-47 dBFS soft noise) under the split screen so gaps never go dead quiet, then `acompressor` + `dynaudnorm` + `loudnorm I=-16`. Result: -16.1 LUFS, LRA 2.8 LU,
+  2-second RMS std 1.8 dB (was 9.3). Always check 2 s RMS across the whole video, not just integrated loudness.
