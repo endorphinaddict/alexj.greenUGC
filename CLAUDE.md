@@ -477,3 +477,7 @@ His direction: keep his original no-talking video (clips, labels, music) and put
   example's on-screen typing windows. (The example's audio is never used; only its picture, for the screen recording.) Split section chain: highpass 90, `afftdn nr=30`, `acompressor 8:1 makeup 12`, lowpass 7 kHz
   (2 s level std 7.0 -> 2.0 dB); then every section is set to the same integrated loudness (-17 LUFS target) and a light 2:1 compressor + limiter closes the mix. Result: -19.8 LUFS, LRA 3.8, 2 s level std 1.4 dB.
   His face-cam mic is quiet and hissy, so a quiet room-sound section can only be made even with strong compression; never boost it plainly to voice level.
+- **His final instruction on this video (v14): "Just don't do anything with the audio. Keep the audio how it was originally."** So the audio is the raw audio of his footage, cut only where the picture is cut:
+  hook = the four 0695 cuts (their own audio), split section = the raw 0696 window from `TOP_START` (his real typing, reactions and sip), ending = raw 0697. NO gain, loudness matching, compression, denoise, ducking,
+  typing re-placement or limiter. (Everything described in the audio follow-ups above, v1-v13, is superseded: it made the audio worse.) Default for every future edit: leave the audio of his footage as recorded unless he asks otherwise.
+  Result is naturally uneven (-26 LUFS, LRA 21 LU: loud voice in the hook and ending, quiet room sound in between), as in his example.

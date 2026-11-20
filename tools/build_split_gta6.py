@@ -138,40 +138,9 @@ ROOM_TONE = (25.00, 25.95)   # 0696 seconds of pure room tone (no clicks, no voi
 
 
 def split_audio(n_frames, path):
-    """ONLY his own 0696 audio is used (nothing from the example). The continuous take keeps his reactions and the sip in lip sync;
-    each of his click bursts is replaced by looped room tone from the same take (a hard crossfade, no ducking, no filters, no added noise),
-    and his typing sound is placed so it starts and ends with the typing on the example's screen."""
-    dur = n_frames / FPS
-    n = int(round(dur * SR))
-    bed = read_audio(f"{G}/in/0696.mp4", TOP_START, dur)
-    tone = read_audio(f"{G}/in/0696.mp4", ROOM_TONE[0], ROOM_TONE[1] - ROOM_TONE[0])
-    xf = int(0.08 * SR)
-    loop = tone.copy()
-    while len(loop) < n + len(tone):                                          # loop the tone with 80 ms crossfades
-        a_, b_ = loop[-xf:], tone[:xf]
-        ramp = np.linspace(0, 1, xf)[:, None]
-        loop = np.concatenate([loop[:-xf], a_ * (1 - ramp) + b_ * ramp, tone[xf:]])
-    loop = loop[:n]
-
-    def mask(ranges, ramp_ms=40):
-        m = np.zeros(n, np.float32)
-        for r0, r1 in ranges:
-            i0, i1 = max(0, int(r0 * SR)), min(n, int(r1 * SR))
-            if i1 > i0:
-                m[i0:i1] = 1.0
-        k = np.ones(int(ramp_ms / 1000 * SR)) / int(ramp_ms / 1000 * SR)
-        return np.clip(np.convolve(m, k, mode="same"), 0, 1)[:, None]
-
-    m = mask([(b0 - TOP_START, b1 - TOP_START) for b0, b1 in BURSTS])
-    out = bed * (1 - m) + loop * m
-    for (e0, e1), (h0, h1) in TYPING:
-        seg = read_audio(f"{G}/in/0696.mp4", h0 - 0.04, h1 - h0 + 0.08)       # 40 ms either side for the crossfade
-        i0 = int(round((e0 - 0.04 - EX_SPLIT[0]) * SR))
-        mm = mask([(e0 - EX_SPLIT[0], e1 - EX_SPLIT[0])], 40)
-        full = np.zeros_like(out)
-        full[i0:i0 + len(seg)] = seg[: n - i0]
-        out = out * (1 - mm) + full * mm
-    write_wav(out, path)
+    """His instruction: do NOTHING to the audio. The split section's sound is the raw 0696 take from TOP_START, exactly as recorded
+    (his own typing, reactions and sip are in sync with his face). No ducking, re-placement, filters, gain or compression."""
+    write_wav(read_audio(f"{G}/in/0696.mp4", TOP_START, n_frames / FPS), path)
 
 
 def main():
@@ -205,7 +174,7 @@ def main():
     run(["ffmpeg", "-v", "error", "-y", "-ss", f"{CTA_SRC[0]:.4f}", "-i", f"{G}/in/0697.mp4", "-i", f"{OV}/cta_title.png", "-filter_complex",
          f"[0:v:0]fps={FPS},trim=end_frame={n_cta},crop={cw}:{ch}:{cx}:{cy},scale=1080:1040:flags=lanczos,setsar=1,format=yuv420p[cam];"
          f"color=c=black:s={W}x{H}:r={FPS}:d={n_cta / FPS:.4f},format=yuv420p[bg];[bg][cam]overlay=0:520:shortest=1[c1];[c1][1:v]overlay=0:272,format=yuv420p[v];"
-         f"[0:a]atrim=0:{n_cta / FPS:.4f},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,volume=9dB,"
+         f"[0:a]atrim=0:{n_cta / FPS:.4f},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,"
          f"afade=t=in:d=0.01,afade=t=out:st={n_cta / FPS - 0.02:.4f}:d=0.02[a]",
          "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-preset", "veryfast", "-crf", "10", "-c:a", "pcm_s16le", f"{OV}/cta.mkv"])
 
@@ -237,25 +206,11 @@ def main():
             "-crf", "10", "-c:a", "pcm_s16le", f"{OV}/split.mkv"]
     run(cmd)
 
-    # ---- join. Audio comes ONLY from his footage (0695 hook, 0696 face-cam, 0697 ending). The split section's room sound is hissy and
-    # swings between near-silence and loud key clicks, so it is cleaned (denoise, 7 kHz low-pass) and levelled with a strong compressor
-    # (std of the 2 s level 7.0 -> 2.0 dB); then all three sections are set to the same integrated loudness.
-    proc = f"{OV}/split_proc.wav"
-    run(["ffmpeg", "-v", "error", "-y", "-i", f"{OV}/split.mkv", "-vn", "-af",
-         "highpass=f=90,afftdn=nr=30:nf=-60:tn=1,acompressor=threshold=0.008:ratio=8:attack=20:release=500:makeup=12,lowpass=f=7000",
-         "-c:a", "pcm_s16le", proc])
-    gains = []
-    for name, f_ in (("hook", f"{OV}/hook.mkv"), ("split", proc), ("cta", f"{OV}/cta.mkv")):
-        r = subprocess.run(["ffmpeg", "-hide_banner", "-i", f_, "-af", "ebur128", "-f", "null", "-"], capture_output=True, text=True).stderr
-        lufs = float(r.split("Integrated loudness:")[-1].split("I:")[1].split("LUFS")[0])
-        gains.append(max(-14.0, min(14.0, TARGET_LUFS - lufs)))
-        print(f"{name}: {lufs:.1f} LUFS -> gain {gains[-1]:+.1f} dB", flush=True)
-    run(["ffmpeg", "-v", "error", "-y", "-i", f"{OV}/hook.mkv", "-i", f"{OV}/split.mkv", "-i", f"{OV}/cta.mkv", "-i", proc, "-filter_complex",
-         "[0:a]highpass=f=70,volume=%.2fdB[a0];[3:a]volume=%.2fdB[a1];[2:a]highpass=f=70,volume=%.2fdB[a2];" % tuple(gains) +
-         "[0:v][a0][1:v][a1][2:v][a2]concat=n=3:v=1:a=1[v][a3];"
-         "[a3]acompressor=threshold=0.18:ratio=2:attack=15:release=250:makeup=1,alimiter=limit=0.9:level=disabled[a]",
+    # ---- join. Audio is left exactly as recorded (his instruction): no gain, no filters, no compressor, no limiter.
+    run(["ffmpeg", "-v", "error", "-y", "-i", f"{OV}/hook.mkv", "-i", f"{OV}/split.mkv", "-i", f"{OV}/cta.mkv", "-filter_complex",
+         "[0:v][0:a][1:v][1:a][2:v][2:a]concat=n=3:v=1:a=1[v][a]",
          "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-r", str(FPS),
-         "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out])
+         "-c:a", "aac", "-b:a", "256k", "-movflags", "+faststart", out])
 
 if __name__ == "__main__":
     main()
