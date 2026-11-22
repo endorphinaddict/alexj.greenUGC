@@ -36,11 +36,14 @@ GROUPS = {
     "blackgold": ["0789", "0790", "0794", "0796", "0797"],   # black henley with the gold pattern on the lower half
     "blackpolo": ["0799", "0802", "0805", "0806", "0807"],   # black polo with the chain collar
 }
-HOLD_S = 1.95            # reference: ~1.9 s after "like this" while the Roblox story pop-up plays
+# His new Roblox shorts replace the Notion story clip as the pop-up (the pop-up plays with its own sound while his face holds; the hold ends
+# exactly where the pop-up sentence ends, so there is no silent time). Alternating by shirt.
+POPS = {"white": ("short1", 1.72), "red": ("short2", 1.85), "blackgold": ("short1", 1.72), "blackpolo": ("short2", 1.85)}   # (file in bs/pics, seconds used)
+HOLD_S = None            # set per group from POPS
 DEMO_END = 12.2          # seconds of demo.mp4 used
 END_TAIL = 0.25          # last word of the video finishes + this much
 POP_W, POP_X, POP_Y = 320, 30, 396     # Roblox story pop-up (9:16): left of his head (he sits right of centre), under the hook row
-CARD_W, CARD_X, CARD_Y = 380, 30, 640  # views and revenue cards, beside his head on the same side
+CARD_W, CARD_Y = 420, 1540            # views and revenue cards: centred, JUST UNDER the captions (his request; caption baseline 1500)
 ROW_CY = 255             # hook row centre (hair top is >= y 445 in every hook take)
 
 
@@ -56,6 +59,8 @@ def clean_words(cid, words):
 
 
 def build_plan(group):
+    global HOLD_S
+    HOLD_S = POPS[group][1]
     allw = {k.replace(".wav", ""): v for k, v in json.load(open(f"{BS}/tr.json")).items()}
     ids = GROUPS[group]
     order = [("L1", ids[0]), ("L2", ids[1]), ("L3", ids[2]), ("DEMO", "demo"), ("P1", ids[3]), ("P2", ids[4])]
@@ -128,12 +133,12 @@ def rounded(im, r):
 
 
 def hook_row_png(path):
-    """[blue Roblox tile] + [Buzzy bee] = [money-mouth face], centred, "+" and "=" in the caption font (reference hook row)."""
+    """[blue Roblox tile] + [YouTube Shorts logo] = [money-mouth face], centred, "+" and "=" in the caption font (reference hook row)."""
     f = ImageFont.truetype(capstyle._font_path(), 84)
     tile = rounded(Image.open(f"{BS}/pics/images.jpg").convert("RGB").resize((230, 230), Image.LANCZOS), 50)
-    bee = Image.open(f"{BS}/pics/buzzy_logo.png").convert("RGBA")
-    bee = bee.crop(bee.split()[3].getbbox())
-    bee = bee.resize((290, round(bee.height * 290 / bee.width)), Image.NEAREST)          # pixel art stays crisp
+    bee = Image.open(f"{BS}/pics/youtube_shorts_cutout.png").convert("RGBA")             # his request: YouTube Shorts logo instead of the yellow bee
+    bee = bee.crop(bee.split()[3].point(lambda v: 255 if v > 40 else 0).getbbox())
+    bee = bee.resize((round(bee.width * 250 / bee.height), 250), Image.LANCZOS)
     face = Image.open(f"{BS}/pics/money-mouth-face_1f911.png").convert("RGBA").resize((170, 170), Image.LANCZOS)
     tmp = ImageDraw.Draw(Image.new("RGBA", (10, 10)))
     pw, ew = tmp.textlength("+", font=f), tmp.textlength("=", font=f)
@@ -199,8 +204,8 @@ def main():
     f_mill, f_thou = c2["of"](c2["words"][wi("millions")]["s"]), c2["of"](c2["words"][wi("thousands")]["s"])
     fit_png(f"{BS}/pics/views-9M.png", CARD_W, f"{OV}/views.png")
     fit_png(f"{BS}/pics/rev_nov.png", CARD_W, f"{OV}/rev_small.png")
-    layers.append((f"{OV}/views.png", CARD_X, CARD_Y, f_mill, f_thou))
-    layers.append((f"{OV}/rev_small.png", CARD_X, CARD_Y, f_thou, c2["f1"]))
+    layers.append((f"{OV}/views.png", (W - CARD_W) // 2, CARD_Y, f_mill, f_thou))
+    layers.append((f"{OV}/rev_small.png", (W - CARD_W) // 2, CARD_Y, f_thou, c2["f1"]))
     # permanent rule: payouts CTA clip carries the revenue card for the ENTIRE clip, centred, 640 px, top y 110
     fit_png(f"{BS}/pics/rev_nov.png", 640, f"{OV}/rev_top.png")
     layers.append((f"{OV}/rev_top.png", (W - 640) // 2, 110, by["P1"]["f0"], by["P1"]["f1"]))
@@ -216,23 +221,32 @@ def main():
     # Roblox story pop-up (video + its own sound) during the hold
     hs, hf0, hn = by["L1"]["hold"]
     pop = f"{OV}/pop.mkv"
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", f"{BS}/pics/roblox_story.mp4", "-t", f"{(hn + 4) / FPS:.4f}", "-vf",      # a few spare frames: the enable window ends the pop-up exactly
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", f"{BS}/pics/{POPS[group][0]}.mp4", "-t", f"{(hn + 4) / FPS:.4f}", "-vf",      # a few spare frames: the enable window ends the pop-up exactly
                     
                     f"fps={FPS},scale={POP_W}:-2:flags=lanczos,setsar=1,format=yuv420p", "-an", "-c:v", "libx264", "-crf", "12", pop], check=True)
     pop_h = int(subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=height", "-of", "csv=p=0", pop],
                                capture_output=True, text=True).stdout.strip())
 
+    # Pop-up layer with exact frame times: transparent for F frames, the pop-up on frames [hf0, hf0+hn). (Time-based `enable` on the overlay
+    # was off by a frame depending on timestamp drift, and n-based `enable` dropped the pop-up, so no `enable` is used.)
+    pop_layer = f"{OV}/pop_layer.mkv"
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", f"color=c=black@0.0:s={POP_W}x{pop_h}:r={FPS}:d={total + 1:.3f},format=yuva420p",
+                    "-i", pop, "-filter_complex",
+                    f"[0:v]setpts=N/({FPS}*TB)[bg];[1:v]trim=end_frame={hn},format=yuva420p,setpts=N/({FPS}*TB)+{hf0}/({FPS}*TB)[pv];"
+                    f"[bg][pv]overlay=0:0:eof_action=pass:format=auto,format=yuva420p[o]", "-map", "[o]", "-frames:v", str(F + 2),
+                    "-c:v", "ffv1", "-pix_fmt", "yuva420p", pop_layer], check=True)
+
     cmd = ["ffmpeg", "-v", "error", "-stats", "-y", "-i", base]
     for l in layers:
         cmd += ["-i", l[0]]
     pop_i, st_i, mus_i, ris_i = 1 + len(layers), 2 + len(layers), 3 + len(layers), 4 + len(layers)
-    cmd += ["-i", pop, "-i", f"{BS}/pics/roblox_story.mp4", "-i", f"{A}/music.mp3", "-i", f"{A}/riser_metallic.mp4"]
-    parts, prev = [], "0:v"
+    cmd += ["-i", pop_layer, "-i", f"{BS}/pics/{POPS[group][0]}.mp4", "-i", f"{A}/music.mp3", "-i", f"{A}/riser_metallic.mp4"]
+    parts, prev = [f"[0:v]setpts=N/({FPS}*TB)[b0]"], "b0"      # exact frame times: the concatenated base drifts a few ms, which moved time-based overlay edges by a frame
     for k, (p, x, y, fa, fb) in enumerate(layers):
         parts.append(f"[{prev}][{1 + k}:v]overlay={x}:{y}:enable='between(n,{fa},{fb - 1})'[o{k}]")
         prev = f"o{k}"
-    parts.append(f"[{pop_i}:v]setpts=PTS-STARTPTS+{hf0 / FPS:.5f}/TB[pv]")
-    parts.append(f"[{prev}][pv]overlay={POP_X}:{POP_Y}:eof_action=pass:enable='between(t,{hf0 / FPS - 0.002:.5f},{(hf0 + hn) / FPS + 0.02:.5f})'[vout]")   # time-based: n-based enable drops the pop-up
+    parts.append(f"[{pop_i}:v]setpts=N/({FPS}*TB),format=yuva420p[pv]")
+    parts.append(f"[{prev}][pv]overlay={POP_X}:{POP_Y}:shortest=0:eof_action=pass:format=auto[vout]")
 
     v_rms = rms_of(base, 0, total)                              # his voice level as recorded: music and riser sit under it
     m_gain = (v_rms - 14.0) - rms_of(f"{A}/music.mp3", bai.MUSIC_START, bai.MUSIC_START + total)
@@ -242,7 +256,7 @@ def main():
                  f"aformat=channel_layouts=stereo,aresample=48000,volume={m_gain:.2f}dB,afade=t=in:d=0.03,afade=t=out:st={total - 0.8:.2f}:d=0.8[mus]")
     parts.append(f"[{ris_i}:a]aformat=channel_layouts=stereo,aresample=48000,volume={r_gain:.2f}dB,atrim=0:3.0,"
                  f"adelay={int(riser_start * 1000)}|{int(riser_start * 1000)}[ris]")
-    parts.append(f"[{st_i}:a]atrim=0:{hn / FPS:.4f},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,"
+    parts.append(f"[{st_i}:a]atrim=0:{hn / FPS:.4f},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,afade=t=out:st={hn / FPS - 0.03:.4f}:d=0.03,"
                  f"adelay={int(hf0 / FPS * 1000)}|{int(hf0 / FPS * 1000)}[sto]")
     parts.append("[0:a]aresample=48000,aformat=channel_layouts=stereo[voice]")
     parts.append("[voice][sto][mus][ris]amix=inputs=4:duration=first:normalize=0[aout]")
