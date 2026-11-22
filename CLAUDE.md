@@ -485,3 +485,22 @@ His direction: keep his original no-talking video (clips, labels, music) and put
   The continuous 0696 take keeps his reactions and sip in lip sync; his click bursts are cut out and covered with raw room tone from the same take (0696 25.00-25.95 s looped, 80 ms crossfades); each raw burst is placed on the
   example's typing windows (`TYPING`). Check with `clicks.py`-style detection: 101 of 112 clicks in the split fall inside the typing windows (the rest are single natural ticks). Hook and ending audio untouched.
   Supersedes the v14 "completely untouched" version, which left his typing out of sync with the screen.
+
+## Format: Buzzy "monetize YT Shorts" (Roblox story) in 4 shirts (Nov 22 footage)
+
+Reference `Footage/Example Video/Its never been easier to monetize YT shorts, buzzy.now is printing rn.mp4` (720x1280, 29.07 s). Script: `tools/build_buzzy_shirts.py GROUP OUT` (GROUP = white | red | blackgold | blackpolo);
+one script, same structure for every shirt, only the takes differ. Render the four one after another (memory).
+Reference timeline (seconds): 0-1.36 line 1 "you've probably seen videos like this" | 1.36-3.3 he HOLDS ~1.9 s while the Roblox story pop-up plays with its own sound ("In this town, there is only one rule.", first 1.9 s of the Notion
+asset `Roblox-YouTube-story.mp4`) | 3.3-6.27 line 2 "actually getting millions of views and generating thousands of dollars" (9M views picture from "millions" to "thousands"; $3,287.17 revenue card on "thousands of dollars") |
+6.27-11.0 line 3 "let me show you how you can make the same exact video before someone else puts it behind a $5,000 course" | 11.0-23.2 DEMO (`Footage/demo.mp4`, his voice-over + burned-in captions; riser stops on the cut) |
+23.2-26.0 "start posting these twice a day ... payouts like this" (revenue card the WHOLE clip, rule) | 26.0-29.07 "if you want the prompt that I use, just comment buzz and I'll DM it". Hook row (blue Roblox tile `images.jpg` + Buzzy bee = money-mouth face `money-mouth-face_1f911.png`)
+on top from 0 to the demo cut; no top text. Music from its peak under everything.
+- Shirts (checked on a frame of every clip): white tee `0773 0774 0777 0778 0780` | red tee `0783 0784 0785 0786 0787` | black henley with gold lower pattern `0789 0790 0794 0796 0797` | black chain-collar polo `0799 0802 0805 0806 0807`.
+  Each group is exactly one take per line (no duplicates). Their wording differs slightly (white: "consistently to start getting payouts", "the same exact prompt I used ... Buzzy"; red "Now to start posting"; polo "So I'm gonna show you"); never borrow a clip from another shirt.
+- `demo.mp4` is shared by all four: 0-12.2 s is the demo (voice ends 12.18 s, picture goes black at 12.25 s); the rest of the file is black plus a $7,165.77 card still. Use `DEMO_END = 12.2`.
+- Pictures supplied but not in the reference: `roblox 5.png` (red Roblox logo), `youtube_shorts_cutout.png`. The bee logo, the $3,287.17 card and the Roblox story clip are not in this folder: taken from his Notion "Roblox Shorts" page / earlier builds.
+- Placement (his rule: beside the head, where he points): in every hook take he sits right of centre (head x ~430-950) and gestures low with the pen/item, so the pop-up (320 wide, x 30, y 396), the views card and the small revenue card (380 wide, x 30, y 640)
+  all go on his left, above his hand, under the hook row. Close-ups: revenue card centred, 640 wide, y 110 (hair top >= y 445 in all four CTA takes).
+- Audio: his voice exactly as recorded (no gain/filters); music at (voice rms - 14 dB), riser at (voice rms - 8 dB); the story pop-up's own sound plays during the hold. Result -14 to -15 LUFS, peak -0.5 dBFS.
+- ffmpeg gotchas: overlaying the pop-up video with `enable='between(n,...)'` silently drops it; use a TIME window (`between(t, hold_start/30 - 0.002, hold_end/30 + 0.02)`, the +0.02 makes the last hold frame show) and make the pop-up clip a few frames longer than the hold.
+- Lengths: white 31.23 s, red 30.10 s, black gold 30.63 s, black polo 29.93 s.
