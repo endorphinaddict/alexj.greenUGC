@@ -518,3 +518,10 @@ on top from 0 to the demo cut; no top text. Music from its peak under everything
   to what is left after his voice ends (hold = pop start + sentence frames - voice end). Position unchanged (above the pen). Videos got 0.6-0.7 s shorter (white 30.43, red 29.43, black gold 29.87, black polo 29.27 s).
 - **His follow-up (Nov 23): top text on the very last clip.** The last clip ("comment buzz", role P2) carries the text `comment "buzz"` (curly quotes) at the top, in the caption font (`capstyle.render`, Lato Bold 92, 4 px outline, overlay y 110 = baseline 240, above the hair line y >= 445),
   from the clip's first frame to its last frame, nothing before it (the revenue card on the clip before sits at y 110 too, so they never overlap).
+
+## Format: "sound up" swap (Nov 23, `Footage/sound up .mp4`, his finished edit, 1080x1920, 27.97 s, captions/pop-ups burned in)
+
+Script `tools/build_soundup_swap.py`. His ask: (1) the yellow Buzzy bee in the middle of the hook row -> the YouTube Shorts logo (`youtube_shorts_cutout.png`, 230 px tall, centre (545,222)); the bee is erased per frame with cv2.inpaint
+(mask = pixels differing from the wall colour = median of the box border, dilated 9 px, box x405 y120 280x210; a colour-threshold mask left grey wing remnants), then the logo is laid on top; (2) the demo section (frames 313-679, 10.433-22.633 s, 12.2 s)
+-> `Footage/demo.mp4` 0-12.2 s (the ChatGPT part used in the four shirt videos; same length). Hook/ending audio untouched; demo section uses demo.mp4's own voice-over with `assets/music.mp3` under it (his original music track is mixed into the
+burned-in audio and cannot be separated). Hook/ending video keeps its burned-in captions, 9M card, revenue card, "COMMENT "BLOX"" text.
