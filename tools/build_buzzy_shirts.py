@@ -43,7 +43,7 @@ HOLD_S = None            # set per group from POPS
 DEMO_END = 12.2          # seconds of demo.mp4 used
 END_TAIL = 0.25          # last word of the video finishes + this much
 POP_W = 320              # Roblox pop-up width (9:16)
-POP_DELAY_F = 3          # his request: the pop-up plays "a fraction of a second" (3 frames) after he says "this"
+POP_DELAY_F = 0          # his request: the pop-up plays "a fraction of a second" (3 frames) after he says "this"
 # His request: the pop-up sits RIGHT ABOVE where he is pointing. In the hold he holds the pen/item upright in his left hand (screen left),
 # looking at it; measured pen/item tip (x, y) in the hold, pop-up centred on x with its bottom 25 px above the tip.
 POP_TIP = {"white": (294, 985), "red": (280, 1090), "blackgold": (252, 1115), "blackpolo": (200, 1165)}
@@ -88,8 +88,13 @@ def build_plan(group):
             o += n
         hold = None
         if role == "L1":                                     # hold on his face while the Roblox story plays
-            n = round(HOLD_S * FPS) + POP_DELAY_F
-            hold = (pieces[-1][1], o, n)                     # (source start, out frame, frames)
+            # His request: the pop-up comes up AS he says "this" (onset of the last word), not after it. It plays one full sentence (HOLD_S);
+            # the hold on his face only has to cover whatever of that sentence is left after his voice ends.
+            t_this = words[-1]["s"]
+            f_this = next(o0 + round((t_this - a) * FPS) for a, b, o0, n_ in pieces if a <= t_this <= b)
+            P = round(HOLD_S * FPS)
+            n = max(1, f_this + P - o)
+            hold = (pieces[-1][1], f_this, P)                # (source start of the hold, pop-up start frame, pop-up frames)
             pieces.append((pieces[-1][1], pieces[-1][1] + n / FPS, o, n))
             o += n
 
