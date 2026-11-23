@@ -42,7 +42,11 @@ POPS = {"white": ("short1", 1.72), "red": ("short2", 1.85), "blackgold": ("short
 HOLD_S = None            # set per group from POPS
 DEMO_END = 12.2          # seconds of demo.mp4 used
 END_TAIL = 0.25          # last word of the video finishes + this much
-POP_W, POP_X, POP_Y = 320, 30, 396     # Roblox story pop-up (9:16): left of his head (he sits right of centre), under the hook row
+POP_W = 320              # Roblox pop-up width (9:16)
+POP_DELAY_F = 3          # his request: the pop-up plays "a fraction of a second" (3 frames) after he says "this"
+# His request: the pop-up sits RIGHT ABOVE where he is pointing. In the hold he holds the pen/item upright in his left hand (screen left),
+# looking at it; measured pen/item tip (x, y) in the hold, pop-up centred on x with its bottom 25 px above the tip.
+POP_TIP = {"white": (294, 985), "red": (280, 1090), "blackgold": (252, 1115), "blackpolo": (200, 1165)}
 CARD_W, CARD_Y = 420, 1540            # views and revenue cards: centred, JUST UNDER the captions (his request; caption baseline 1500)
 ROW_CY = 255             # hook row centre (hair top is >= y 445 in every hook take)
 
@@ -84,7 +88,7 @@ def build_plan(group):
             o += n
         hold = None
         if role == "L1":                                     # hold on his face while the Roblox story plays
-            n = round(HOLD_S * FPS)
+            n = round(HOLD_S * FPS) + POP_DELAY_F
             hold = (pieces[-1][1], o, n)                     # (source start, out frame, frames)
             pieces.append((pieces[-1][1], pieces[-1][1] + n / FPS, o, n))
             o += n
@@ -220,8 +224,10 @@ def main():
 
     # Roblox story pop-up (video + its own sound) during the hold
     hs, hf0, hn = by["L1"]["hold"]
+    hn_pop, hf_pop = hn - POP_DELAY_F, hf0 + POP_DELAY_F          # the pop-up itself: starts 3 frames after the hold begins
+    tipx, tipy = POP_TIP[group]
     pop = f"{OV}/pop.mkv"
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", f"{BS}/pics/{POPS[group][0]}.mp4", "-t", f"{(hn + 4) / FPS:.4f}", "-vf",      # a few spare frames: the enable window ends the pop-up exactly
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", f"{BS}/pics/{POPS[group][0]}.mp4", "-t", f"{(hn_pop + 4) / FPS:.4f}", "-vf",      # a few spare frames: the enable window ends the pop-up exactly
                     
                     f"fps={FPS},scale={POP_W}:-2:flags=lanczos,setsar=1,format=yuv420p", "-an", "-c:v", "libx264", "-crf", "12", pop], check=True)
     pop_h = int(subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=height", "-of", "csv=p=0", pop],
@@ -232,7 +238,7 @@ def main():
     pop_layer = f"{OV}/pop_layer.mkv"
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", f"color=c=black@0.0:s={POP_W}x{pop_h}:r={FPS}:d={total + 1:.3f},format=yuva420p",
                     "-i", pop, "-filter_complex",
-                    f"[0:v]setpts=N/({FPS}*TB)[bg];[1:v]trim=end_frame={hn},format=yuva420p,setpts=N/({FPS}*TB)+{hf0}/({FPS}*TB)[pv];"
+                    f"[0:v]setpts=N/({FPS}*TB)[bg];[1:v]trim=end_frame={hn_pop},format=yuva420p,setpts=N/({FPS}*TB)+{hf_pop}/({FPS}*TB)[pv];"
                     f"[bg][pv]overlay=0:0:eof_action=pass:format=auto,format=yuva420p[o]", "-map", "[o]", "-frames:v", str(F + 2),
                     "-c:v", "ffv1", "-pix_fmt", "yuva420p", pop_layer], check=True)
 
@@ -246,7 +252,7 @@ def main():
         parts.append(f"[{prev}][{1 + k}:v]overlay={x}:{y}:enable='between(n,{fa},{fb - 1})'[o{k}]")
         prev = f"o{k}"
     parts.append(f"[{pop_i}:v]setpts=N/({FPS}*TB),format=yuva420p[pv]")
-    parts.append(f"[{prev}][pv]overlay={POP_X}:{POP_Y}:shortest=0:eof_action=pass:format=auto[vout]")
+    parts.append(f"[{prev}][pv]overlay={tipx - POP_W // 2}:{tipy - 25 - pop_h}:shortest=0:eof_action=pass:format=auto[vout]")
 
     v_rms = rms_of(base, 0, total)                              # his voice level as recorded: music and riser sit under it
     m_gain = (v_rms - 14.0) - rms_of(f"{A}/music.mp3", bai.MUSIC_START, bai.MUSIC_START + total)
@@ -256,14 +262,14 @@ def main():
                  f"aformat=channel_layouts=stereo,aresample=48000,volume={m_gain:.2f}dB,afade=t=in:d=0.03,afade=t=out:st={total - 0.8:.2f}:d=0.8[mus]")
     parts.append(f"[{ris_i}:a]aformat=channel_layouts=stereo,aresample=48000,volume={r_gain:.2f}dB,atrim=0:3.0,"
                  f"adelay={int(riser_start * 1000)}|{int(riser_start * 1000)}[ris]")
-    parts.append(f"[{st_i}:a]atrim=0:{hn / FPS:.4f},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,afade=t=out:st={hn / FPS - 0.03:.4f}:d=0.03,"
-                 f"adelay={int(hf0 / FPS * 1000)}|{int(hf0 / FPS * 1000)}[sto]")
+    parts.append(f"[{st_i}:a]atrim=0:{hn_pop / FPS:.4f},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,afade=t=out:st={hn_pop / FPS - 0.03:.4f}:d=0.03,"
+                 f"adelay={int(hf_pop / FPS * 1000)}|{int(hf_pop / FPS * 1000)}[sto]")
     parts.append("[0:a]aresample=48000,aformat=channel_layouts=stereo[voice]")
     parts.append("[voice][sto][mus][ris]amix=inputs=4:duration=first:normalize=0[aout]")
     cmd += ["-filter_complex", ";".join(parts), "-map", "[vout]", "-map", "[aout]", "-t", f"{total:.3f}",
             "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-pix_fmt", "yuv420p", "-r", str(FPS),
             "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", out]
-    json.dump(dict(group=group, clips=[(c["role"], c["cid"], c["f0"], c["f1"]) for c in clips], hold=(hf0, hn), pop_h=pop_h,
+    json.dump(dict(group=group, clips=[(c["role"], c["cid"], c["f0"], c["f1"]) for c in clips], hold=(hf_pop, hn_pop), pop_h=pop_h,
                    views=(f_mill, f_thou), caps=[(c["role"], c["caps"]) for c in clips]), open(f"{BS}/plan_{group}.json", "w"), indent=1)
     subprocess.run(cmd, check=True)
 
