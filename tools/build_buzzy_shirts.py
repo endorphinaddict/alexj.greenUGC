@@ -218,6 +218,9 @@ def main():
     # permanent rule: payouts CTA clip carries the revenue card for the ENTIRE clip, centred, 640 px, top y 110
     fit_png(f"{BS}/pics/rev_nov.png", 640, f"{OV}/rev_top.png")
     layers.append((f"{OV}/rev_top.png", (W - 640) // 2, 110, by["P1"]["f0"], by["P1"]["f1"]))
+    # His request: on the very last clip (P2, "comment buzz"), the text comment "buzz" at the top, caption font, from its first to its last frame
+    capstyle.render("comment \u201cbuzz\u201d", f"{OV}/top_buzz.png")
+    layers.append((f"{OV}/top_buzz.png", 0, 110, by["P2"]["f0"], by["P2"]["f1"]))
     # captions (permanent style); close-ups (the two CTA clips) use the lower baseline
     for cl in clips:
         for j, (text, fa, fb) in enumerate(cl["caps"]):
