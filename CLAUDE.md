@@ -525,3 +525,14 @@ Script `tools/build_soundup_swap.py`. His ask: (1) the yellow Buzzy bee in the m
 (mask = pixels differing from the wall colour = median of the box border, dilated 9 px, box x405 y120 280x210; a colour-threshold mask left grey wing remnants), then the logo is laid on top; (2) the demo section (frames 313-679, 10.433-22.633 s, 12.2 s)
 -> `Footage/demo.mp4` 0-12.2 s (the ChatGPT part used in the four shirt videos; same length). Hook/ending audio untouched; demo section uses demo.mp4's own voice-over with `assets/music.mp3` under it (his original music track is mixed into the
 burned-in audio and cannot be separated). Hook/ending video keeps its burned-in captions, 9M card, revenue card, "COMMENT "BLOX"" text.
+
+## Briefs for his human editor (Google Drive folder "Video Editor Briefs", Nov 26)
+
+He also hands videos to a human editor. His Drive folder "Video Editor Briefs" holds: `00 Editing rules (read before every video)`
+(the standing rules from this file, written in plain editor language), `01 Brief template (make a copy for each video)`, and one
+`Brief: <video name>` doc per video. When he dictates instructions for the editor, rewrite them as short, plain, unambiguous
+instructions (exact on-screen wording in quotes, what to keep, where to cut) and put them in that video's brief; leave anything he
+did not say as `[to add]` rather than guessing. Only the Google Drive connector is available, which can create docs but not edit them:
+changes to an existing brief need the Google Docs connector, or a new copy.
+- First brief: "Using Roblox to buy Christmas presents". No music. Hook title exactly "using Roblox to buy Christmas presents in under
+  30 seconds". Keep the whole countdown including the finger snap, and cut to the next clip immediately after the snap.
